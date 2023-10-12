@@ -1,0 +1,38 @@
+
+
+.popup-div {
+	position: fixed;
+	top: -600%;
+	right: 15%;
+	width: 75%;
+	height: auto;
+	background-color: #f1f1f1;
+	z-index: 9999;
+	padding: 20px;
+	box-sizing: border-box;
+	border-radius: 7px;
+	transition: top 0.5s ease-in-out;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.7);
+}
+
+.popup-div.show {
+	top: 0;
+}
+
+.popup-close-button {
+	cursor: pointer;
+}
+
+.custom-input {
+	border: none;
+	background: none;
+	outline: none;
+	margin: 0;
+	font-size: 16px;
+	color: #000;
+	width: 90%;
+}
+
+#fileInput {
+	display: none;
+}

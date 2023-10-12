@@ -1,0 +1,33 @@
+.content-area {
+  padding: 0.5em 2em;
+}
+
+.center {
+  text-align: center;
+}
+
+.error {
+  color: red;
+  font-size: 1em;
+}
+
+td i {
+  cursor: pointer;
+}
+
+tr td {
+  vertical-align: middle;
+}
+
+.fa-trash {
+  color: rgb(208, 9, 9);
+}
+
+.fa-pen-to-square {
+  color: rgb(94, 94, 94);
+}
+
+.audit-info {
+  font-size: 0.8em;
+  color: rgb(131, 131, 131);
+}

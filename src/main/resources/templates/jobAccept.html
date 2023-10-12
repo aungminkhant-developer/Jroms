@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Job Acceptation</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: sans-serif;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #135F92;
+            }
+            .message-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: whitesmoke;
+            }
+            .code {
+                font-size: 8rem;
+                margin-bottom: 8px;
+            }
+            .message {
+                font-size: 2rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="message-container">
+            <h1 class="code">[[${title}]]</h1>
+            <h2 class="message">[[${verifyJobAccept}]]</h2>
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+			crossorigin="anonymous"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+			rel="stylesheet"
+		/>
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+			integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.1.1/css/hover-min.css"
+		/>
+
+		<link rel="stylesheet" href="css/style.css" />
+
+		<link rel="icon" type="image/png" href="img/Logo-removebg-preview.png" />
+		<title>Ace Recruitment Management</title>
+
+		<style>
+			body {
+				background-color: whitesmoke;
+			}
+
+			.container {
+				margin-top: 30px;
+			}
+
+			.job-list {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-between;
+			}
+
+			.job-item {
+				width: 48%;
+				padding: 20px;
+				background-color: #fff;
+				border-radius: 5px;
+				margin-bottom: 20px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+				position: relative;
+			}
+
+			h2 {
+				font-size: 24px;
+				margin-bottom: 10px;
+			}
+
+			.location {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.salary {
+				color: #2ecc71;
+				margin-bottom: 10px;
+			}
+
+			.dates {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.vacancies {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.status {
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				padding: 5px 10px;
+				border-radius: 5px;
+				color: #fff;
+				font-weight: bold;
+			}
+
+			.open {
+				background-color: #2ecc71;
+			}
+
+			.closed {
+				background-color: #e74c3c;
+			}
+
+			.search-btn {
+				display: inline-block;
+				background-color: #000000;
+				color: #fff;
+				padding: 20px 20px;
+				border: none;
+
+				transition: background-color 0.3s;
+			}
+
+			.bg-black {
+				background-color: #000;
+				color: #fff;
+				padding: 5px;
+				border-radius: 50%;
+			}
+
+			/* Advanced CSS animation using Animate.css */
+			.animated {
+				animation-duration: 1s;
+				animation-fill-mode: both;
+			}
+
+			.fadeIn {
+				animation-name: fadeIn;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+
+			.search-container {
+				display: flex;
+				justify-content: center;
+			}
+
+			.fancy-input {
+				width: 400px;
+				border: 2px solid #000000;
+				border-radius: 25px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+			}
+
+			.fancy-input input {
+				border: none;
+				border-radius: 25px;
+				box-shadow: none;
+				margin-right: 7px;
+			}
+
+			.fancy-input button {
+				border: none;
+				border-radius: 20px;
+			}
+
+			.fancy-input input:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+			<!-- /*dropdown*/ -->
+
+			 .dropdown {
+				position: relative;
+				margin: 0 15px;
+			}
+
+			.dropdown-label {
+				font-size: 14px;
+				margin-bottom: 5px;
+				color: #666;
+			}
+
+			.select {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background-color: #fff;
+				border: 2px solid #000000;
+				border-radius: 5px;
+				padding: 6px 10px;
+				cursor: pointer;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* Add box shadow */
+			}
+
+			.select:hover {
+				background-color: #f0f0f0;
+			}
+
+			.menu {
+				display: none;
+				position: absolute;
+				background-color: #fff;
+				border: 2px solid #000000;
+				border-radius: 5px;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8); /* Add box shadow */
+				max-height: 105px;
+				overflow-x: hidden;
+				overflow-y: auto;
+				list-style: none;
+				padding: 0;
+				margin-top: 5px;
+				width: 100%;
+				z-index: 1;
+				scrollbar-width: thin;
+				scrollbar-color: #3498db #f0f0f0;
+			}
+
+			.menu::-webkit-scrollbar {
+				width: 8px; /* Width of the scrollbar */
+			}
+
+			.menu::-webkit-scrollbar-track {
+				background: #f0f0f0; /* Track color */
+			}
+
+			.menu::-webkit-scrollbar-thumb {
+				background-color: #000000; /* Thumb color */
+			}
+
+			.menu li {
+				padding: 6px 10px;
+				cursor: pointer;
+			}
+
+			.menu li:hover {
+				background-color: #adadad;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body style="padding-bottom: 70px">
+		<nav class="navbar navbar-expand-sm text-bg-light border-bottom sticky-top">
+			<div class="container-fluid">
+				<a href="#" class="navbar-brand">
+					<img
+						src="img/Logo-removebg-preview.png"
+						alt="Logo"
+						class="navbar-logo img-fluid"
+					/>
+				</a>
+
+				<button
+					class="navbar-toggler"
+					data-bs-toggle="collapse"
+					data-bs-target="#nav"
+				>
+					<span class="navbar-toggler-icon .custom-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse justify-content-end" id="nav">
+					<ul class="navbar-nav ms-auto">
+						<li class="nav-item">
+							<strong><a href="#" class="nav-link px-5">Home</a></strong>
+						</li>
+						<li class="nav-item">
+							<strong
+								><a href="about.html" class="nav-link px-5 text-nowrap"
+									>About Us</a
+								></strong
+							>
+						</li>
+						<li class="nav-item">
+							<strong
+								><a href="contactUs.html" class="nav-link px-5 text-nowrap"
+									>Contact Us</a
+								></strong
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<main>
+			<div class="container pb-4">
+				<div class="d-flex flex-wrap justify-content-between">
+					<div class="search-container">
+						<div class="input-group fancy-input">
+							<input
+								type="text"
+								class="form-control"
+								placeholder="Search jobs..."
+							/>
+							<div class="input-group-append">
+								<button class="search-btn" type="button">
+									<i class="fas fa-search"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="dropdown" style="width: 120px">
+						<label class="dropdown-label">Location</label>
+						<div class="select">
+							<span class="selected small px-2">All</span>
+							<i class="fas fa-caret-down"></i>
+						</div>
+						<ul class="menu small">
+							<li>All</li>
+							<li>Yangon</li>
+							<li>Mandalay</li>
+						</ul>
+					</div>
+					<div class="dropdown" style="width: 180px">
+						<label class="dropdown-label">Title</label>
+						<div class="select">
+							<span class="selected small px-2">All</span>
+							<i class="fas fa-caret-down"></i>
+						</div>
+						<ul class="menu small">
+							<li>All</li>
+							<li>Java Developer</li>
+							<li>IT Assistant</li>
+							<li>Graphic Designer</li>
+							<li>PHP Developer</li>
+							<li>System Engineer</li>
+						</ul>
+					</div>
+					<div class="dropdown" style="width: 120px">
+						<label class="dropdown-label">Status</label>
+						<div class="select">
+							<span class="selected small px-2">All</span>
+							<i class="fas fa-caret-down"></i>
+						</div>
+						<ul class="menu small">
+							<li>All</li>
+							<li>Active</li>
+							<li>Closed</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="container">
+				<h1 class="text-center">Job Openings</h1>
+				<div class="job-list">
+					<div class="job-item animated fadeIn">
+						<h2><i class="fas fa-code bg-black"></i> Frontend Developer</h2>
+						<p class="location">
+							<i class="fas fa-map-marker-alt"></i> San Francisco, CA
+						</p>
+						<p class="salary">
+							<i class="fas fa-money-bill"></i> Salary: $80,000
+						</p>
+						<p class="dates">
+							<i class="fas fa-calendar-check"></i> Open: August 7, 2023 -
+							<i class="fas fa-calendar-times"></i> Closed: September 7, 2023
+						</p>
+						<p class="vacancies">
+							<i class="fas fa-users"></i>2 positions available
+						</p>
+						<p class="status open">Open</p>
+						<a href="job-detail.html" class="btn btn-primary">See Details</a>
+					</div>
+
+					<div class="job-item animated fadeIn">
+						<h2><i class="fas fa-code bg-black"></i> Frontend Developer</h2>
+						<p class="location">
+							<i class="fas fa-map-marker-alt"></i> San Francisco, CA
+						</p>
+						<p class="salary">
+							<i class="fas fa-money-bill"></i> Salary: $80,000
+						</p>
+						<p class="dates">
+							<i class="fas fa-calendar-check"></i> Open: August 7, 2023 -
+							<i class="fas fa-calendar-times"></i> Closed: September 7, 2023
+						</p>
+						<p class="vacancies">
+							<i class="fas fa-users"></i>2 positions available
+						</p>
+						<p class="status closed">closed</p>
+						<a href="job-detail.html" class="btn btn-primary">See Details</a>
+					</div>
+
+					<div class="job-item animated fadeIn">
+						<h2><i class="fas fa-code bg-black"></i> Frontend Developer</h2>
+						<p class="location">
+							<i class="fas fa-map-marker-alt"></i> San Francisco, CA
+						</p>
+						<p class="salary">
+							<i class="fas fa-money-bill"></i> Salary: $80,000
+						</p>
+						<p class="dates">
+							<i class="fas fa-calendar-check"></i> Open: August 7, 2023 -
+							<i class="fas fa-calendar-times"></i> Closed: September 7, 2023
+						</p>
+						<p class="vacancies">
+							<i class="fas fa-users"></i>2 positions available
+						</p>
+						<p class="status closed">closed</p>
+						<a href="job-detail.html" class="btn btn-primary">See Details</a>
+					</div>
+					<!-- Add more job items here -->
+
+					<div class="job-item animated fadeIn">
+						<h2><i class="fas fa-code bg-black"></i> Frontend Developer</h2>
+						<p class="location">
+							<i class="fas fa-map-marker-alt"></i> San Francisco, CA
+						</p>
+						<p class="salary">
+							<i class="fas fa-money-bill"></i> Salary: $80,000
+						</p>
+						<p class="dates">
+							<i class="fas fa-calendar-check"></i> Open: August 7, 2023 -
+							<i class="fas fa-calendar-times"></i> Closed: September 7, 2023
+						</p>
+						<p class="vacancies">
+							<i class="fas fa-users"></i>2 positions available
+						</p>
+						<div class="d-flex justify-content-between">
+							<div class="btn-group">
+								<button
+									type="button"
+									class="btn btn-primary dropdown-toggle"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+								>
+									<i class="fas fa-users me-2"></i>&nbsp;100
+								</button>
+								<ul class="dropdown-menu">
+									<li>
+										<a class="dropdown-item" href="#">
+											<i class="fas fa-users me-2"></i>
+											<!-- Icon -->
+											Applicants
+										</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="#">
+											<i class="fa-solid fa-clipboard-question me-2"></i>
+											<!-- Icon -->
+											Interviews
+										</a>
+									</li>
+								</ul>
+							</div>
+
+							<a href="edit.html" class="btn btn-secondary">
+								<i class="fa-solid fa-pen-to-square"></i>
+							</a>
+							<a href="delete.html" class="btn btn-danger">
+								<i class="fa-solid fa-trash-can"></i>
+							</a>
+
+							<button class="btn btn-danger">closed</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Add more job items here -->
+			</div>
+
+			<div class="container d-flex justify-content-center align-items-center">
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						<li class="page-item disabled">
+							<a class="page-link" href="#" aria-label="Previous">
+								<span aria-hidden="true">&laquo;</span>
+							</a>
+						</li>
+						<li class="page-item active" aria-current="page">
+							<a class="page-link" href="#">1</a>
+						</li>
+						<li class="page-item"><a class="page-link" href="#">2</a></li>
+						<li class="page-item"><a class="page-link" href="#">3</a></li>
+						<li class="page-item">
+							<a class="page-link" href="#" aria-label="Next">
+								<span aria-hidden="true">&raquo;</span>
+							</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</main>
+
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				$(".select").click(function () {
+					$(this).siblings(".menu").slideToggle();
+					$(".menu").not($(this).siblings(".menu")).slideUp(); // Close other menus
+				});
+
+				$(".menu li").click(function () {
+					const value = $(this).text();
+					$(this).parent().siblings(".select").find(".selected").text(value);
+					$(this).parent(".menu").slideUp();
+				});
+
+				// Close menu on click outside
+				$(document).on("click", function (event) {
+					if (!$(event.target).closest(".dropdown").length) {
+						$(".menu").slideUp();
+					}
+				});
+			});
+		</script>
+
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+			crossorigin="anonymous"
+		></script>
+	</body>
+</html>

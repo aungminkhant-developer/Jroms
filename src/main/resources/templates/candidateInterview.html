@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Candidate's Interview</title>
+  <meta th:name="_csrf" th:content="${_csrf.token}" />
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <style>
+    .fa {
+      font-family: 'Arial', 'Font Awesome 5 Free', 'Font Awesome 5 Brands';
+      font-weight: 900;
+    }
+
+    .table td {
+      max-width: 10rem;
+      overflow-x: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  </style>
+
+  <link rel="stylesheet" href="/css/popUp.css">
+  <link rel="stylesheet" href="/css/interviewCreate.css">
+  <link rel="stylesheet" href="/css/alertBox.css">
+  <link rel="stylesheet" href="/css/loading_mail.css">
+  <!-- <link rel="stylesheet" href="/css/newTopAndSideBar.css"> -->
+
+</head>
+
+<body id="body-pd">
+  <div class="container-fluid">
+    <div class="d-none" data-type="interview" th:data-noti="${notification}" id="notification-message"></div>
+
+    <div class="row">
+      <!-- Sidebar -->
+      <div th:replace="custom_fragments :: sidebar"></div>
+      <div class="col p-0">
+        <div class="fluid-container">
+          <!-- Main Header -->
+          <div th:replace="custom_fragments :: main-header"></div>
+          <!-- Main Content -->
+          <div class="main-content"><!-- Write your code or content here -->
+
+            <!-- Confirm box modal for interview result -->
+            <div th:replace="jobDetail_Interview :: interviewResultConfirmBox"></div>
+
+            <!-- Check box modal for interview result when send mail-->
+            <div th:replace="jobDetail_Interview :: interviewResultCheckBox"></div>
+
+            <!-- this is alert box-->
+            <div th:replace="jobDetail_Interview :: alertBox"></div>
+
+            <!-- popUp for create and update interview -->
+            <div id="popupDiv" class="row popup-div ">
+              <div class="d-flex justify-content-end">
+                <span><i class="fa-solid fa-xmark fa-lg popup-close-button" onclick="closePopUp()"></i></span>
+              </div>
+              <!--to check interview result and mail status when submit-->
+              <input type="hidden" id="checkResult">
+              <input type="hidden" id="checkMailStatus">
+              <div class="col-md-8 pt-5 container" style="max-width: 60rem;height: 35rem;">
+
+                <h4 style="text-align: center;">Interview Schedule</h4>
+                <!--for show error not send email -->
+                <div class="error mt-4" style="text-align: center;" id="notSendEmail" th:text="${notSendEmailExist}">
+                </div>
+                <div class="error" style="text-align: center;" id="interviewCreateError"></div>
+                <form class="container justify-content-center mt-4  w-100" th:object="${schedule}" method="post"
+                  id="contactForm" name="contactForm">
+                  <div class="row justify-content-center mb-3 w-100">
+                    <div class="col-md-5 ">
+                      <div class="mb-3 ">
+
+                        <input style="text-align: center;" type="date" class="form-control" name="interview_date"
+                          th:field="*{interviewDate}" id="interviewDate1">
+                        <!-- for send candidate id  -->
+                        <input type="hidden" th:value="${candidate.id}" name="candidateId">
+                        <!--for send interview id-->
+                        <input type="hidden" th:value="${interviewId}" name="interviewId" id="interviewId">
+                      </div>
+                    </div>
+                    <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                    <div class="col-md-6">
+                      <div class="row mb-3 ">
+                        <div class="col-sm-5">
+                          <input style="text-align: center;" th:value="${time1}" type="time" class="form-control"
+                            name="name" id="interviewTime1">
+                          <input type="hidden" name="time1" th:field="*{startTime}" id="time1">
+                        </div>
+                        <label class="col-sm-2" style="margin-top: 5px;text-align: center;">To</label>
+                        <div class="col-sm-5">
+                          <input style="text-align: center;" th:value="${time2}" type="time" class="form-control"
+                            name="name" id="interviewTime2">
+                          <input type="hidden" name="time1" th:field="*{endTime}" id="time2">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+                  <div class="row justify-content-center mb-3 w-100">
+                    <div class="col-md-5 mt-3">
+
+                      <select style="background-color:#f1f1f1 ;" name="interviewTypeId" class="custom-select w-100"
+                        id="interviewType">
+                        <option th:each="type :${typeList}" th:value="${type.id}" style="text-align: center;"
+                          th:text="${type.name}">
+                        </option>
+                      </select>
+
+
+                    </div>
+                    <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                    <div class="col-md-6 mt-1">
+                      <div class=" mb-3 ">
+                        <input type="text" style="text-align: center;" class="form-control" name="location"
+                          id="typeValue" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                          th:value="${typeList.get(0).meetingUrl==null? typeList.get(0).getLocation().building+','+
+                                                typeList.get(0).getLocation().township+','+typeList.get(0).getLocation().division: typeList.get(0).meetingUrl}">
+                      </div>
+                    </div>
+
+                  </div>
+
+
+
+                  <div class="row justify-content-center mb-3 w-100">
+                    <div class="col-md-5 mt-2">
+                      <div class="custom-select " style="width: 250px;">
+                        <button class="btn dropdown-toggle w-100" type="button" id="multiSelectDropdown"
+                          data-bs-toggle="dropdown" aria-expanded="false">
+                          Choose Interviewer...
+                        </button>
+                        <ul style="background-color: #f1f1f1;width: 22%;" class="dropdown-menu" id="dropdown-menu"
+                          aria-labelledby="multiSelectDropdown">
+                          <li style="margin-left: 10px;">
+                            <label>
+                              <input type="checkbox" th:checked="${interviewerDepart != null}" name="departHeadId"
+                                th:value="${candidate.getJobDetail().getTeam().getDepartment().getDepartmentHead().id}">
+                              Department Head
+                            </label>
+                          </li>
+                          <li style="margin-left: 10px;">
+                            <label>
+                              <input type="checkbox" th:checked="${interviewerTeam != null}" name="teamLeaderId"
+                                th:value="${candidate.getJobDetail().getTeam().getTeamLeader().id}">
+                              Team Leader
+                            </label>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                    <div class="col-md-6 mt-4">
+
+                      <select style="background-color: #f1f1f1;" class="custom-select w-100" id="stage" name="stageId">
+                        <option th:each="stage : ${stageList}" th:text="${stage.name}" th:value="${stage.id}"
+                          th:selected="${selectStage.id == stage.id}" style="text-align: center;"></option>
+                      </select>
+
+                    </div>
+
+                  </div>
+                  <div class="row justify-content-center mt-5 mb-5">
+
+                    <div class="col-md-5 form-group mb-3" style="max-width: 15rem;">
+                      <input type="button" value="Cancel" onclick="closePopUp()" class="btn btn-danger py-2 px-4">
+                      <span class="submitting"></span>
+                    </div>
+
+                    <div class="col-md-3 form-group mb-3" style="max-width: 8rem;">
+                      <input type="submit" th:value="${btnValue}" value="Create" id="createBtn"
+                        onclick="return submitForm()" class="btn btn-success  py-2 px-4">
+                      <span class="submitting"></span>
+                    </div>
+
+
+                  </div>
+                </form>
+
+              </div>
+              <div class="col-sm-1 d-flex" style="height: 500px;width: 50px;">
+                <div class="vr"></div>
+              </div>
+              <div class="col-md-3 pt-5 container">
+                <h4 style="text-align: center;margin-bottom: 80px;">Candidate's detail</h4>
+                <div class="container-fluid mt-5">
+                  <div class="row justify-content-between">
+                    <div class="col-md-4">
+                      <p><strong>Name:</strong>
+                      </p>
+                    </div>
+                    <div class="col-md-7"><span>[[${candidate.name}]]</span></div>
+                  </div>
+                  <div class="row justify-content-between">
+                    <div class="col-md-4">
+                      <p><strong>Applied Job:</strong>
+                      </p>
+                    </div>
+                    <div class="col-md-7"><span>[[${candidate.getJobDetail().getJobTitle().name}]]</span>
+                      <span
+                        th:text="${candidate.getJobDetail().getJobLevel() != null ? '('+ candidate.getJobDetail().getJobLevel().name +')' : '' }"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- popup show for mail send -->
+            <div th:fragment="sendMailPopUp">
+              <div id="popupDivEmail" class="popup-div">
+                <div class="d-flex justify-content-end">
+                  <span><i class="fa-solid fa-xmark fa-lg popup-close-button" onclick="closePopUpEmail()"></i></span>
+                </div>
+                <form method="post" th:action="@{/mng/interview/sendMail}" th:object="${emailTemplate}"
+                  enctype="multipart/form-data">
+                  <div class="col container">
+
+                    <!--to send candidate id and interview id-->
+                    <input type="hidden" name="candidateId" id="candidateIdForSendMail">
+                    <input type="hidden" id="sendMailInterviewId" name="interviewId">
+                    <!--for check which page to redirect-->
+                    <input type="hidden" id="redirectPage" name="redirectPage">
+                    <div>
+                      <div class="row mb-2 border-bottom">
+                        <div class="col col-1">
+                          <span>From</span>
+                        </div>
+                        <div class="col col-1">:</div>
+                        <div class="col col-5">
+                          <input type="text" name="adminEmail" id="fromEmail" onkeydown="preventSpace(event)"
+                            oninput="removeLeadingSpace(event)" onkeyup="validateFromMail()" class="custom-input" />
+                        </div>
+                        <div class="error col-5" id="fromMailError"></div>
+                      </div>
+                      <div class="row mb-2 border-bottom">
+                        <div class="col col-1">To</div>
+                        <div class="col col-1">:</div>
+                        <div class="col col-5">
+                          <input type="text" name="candidateEmail" id="toEmail" onkeydown="preventSpace(event)"
+                            oninput="removeLeadingSpace(event)" onkeyup="validateToMail()" class="custom-input" />
+                        </div>
+                        <div class="error col-5" id="toMailError"></div>
+                      </div>
+                      <div class="row mb-2 border-bottom">
+                        <div class="col col-1">Subject</div>
+                        <div class="col col-1">:</div>
+                        <div class="col col-5">
+                          <input type="text" th:field="*{subject}" name="emailSubject" onkeydown="preventSpace(event)"
+                            oninput="removeLeadingSpace(event)" onkeyup="validateSubject()" id="subject"
+                            class="custom-input" />
+                        </div>
+                        <div class="error col-5" id="subjectError"></div>
+                        <p th:errors="*{subject}"></p>
+                      </div>
+                    </div>
+
+                    <textarea name="textArea2" th:field="*{bodyText}" id="interviewMail" class="mb-2"></textarea>
+
+                    <div class="error" id="messageError"></div>
+                    <div class="col-md-8 form-group mb-3 mt-4">
+                      <select class="customSelect rounded-2" id="typeSelect" name="emailTypeId">
+                        <option value="Choose" th:selected>Choose...</option>
+                        <option th:each="type : ${emailTypeListByInterviewInvite}" th:text="${type.name}"
+                          th:value="${type.id}" th:selected="${emailTypeId == type.id}"></option>
+                      </select>
+                      <label for="budget" class="col-form-label " style="margin-right: 2rem;">Email
+                        Type</label>
+                    </div>
+
+                    <div class="mt-1">
+                      <label for="fileInput" class="btn btn-primary mb-1">
+                        <input type="file" name="attachments" id="fileInput" multiple />
+                        Attachment Files
+                      </label>
+                      <span id="fileCountLabel"></span>
+                    </div>
+                    <div class="error" id="attachmentFileError"></div>
+                    <!--to send file is empty -->
+                    <input type="hidden" id="attachments" name="nullAttachment">
+
+
+                    <div class="row justify-content-center mt-5">
+                      <div class="col-md-2 form-group mb-3">
+                        <input type="button" onclick="closePopUpEmail()" value="Cancel"
+                          class="btn btn-danger  py-2 px-4">
+                        <span class="submitting"></span>
+                      </div>
+
+                      <div class="col-md-3 form-group mb-3">
+                        <input type="submit" id="send" onclick="return validateSendInterviewMail()" value="Send"
+                          class="btn btn-success  py-2 px-4">
+                      </div>
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!--Loading when send mail-->
+          <div id="mySpinner"></div>
+
+          <!--Candidate's interview list-->
+          <div class="container-fluid mt-2 my-3">
+            <div class="row ">
+              <div class="col-md-5 text-align-left">
+                <h3> Interview</h3>
+              </div>
+              <div class="col-md-7" style="text-align: right;">
+                <button id="createInterview" class="btn btn-primary text-nowrap" type="submit">Create
+                  Interview Schedule</a>
+              </div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col-md-3 mt-2 text-align-left">
+                <h6>Candidate's Name: [[${candidate.name}]]</h6>
+              </div>
+              <div class="col-md-3 mt-2 text-align-left">
+                <h6>Department Head:
+                  [[${candidate.getJobDetail().getTeam().getDepartment().getDepartmentHead().name}]]</h6>
+              </div>
+              <div class="col-md-3 mt-2 text-align-left">
+                <h6>Team Leader: [[${candidate.getJobDetail().getTeam().getTeamLeader().name}]]</h6>
+              </div>
+            </div>
+          </div>
+
+          <!-- loading -->
+          <div class="loading-animation" id="loadingAnimation">
+            <div class="loader"></div>
+          </div>
+
+          <!-- Modal -->
+          <div th:fragment="interviewScheduleDetail">
+            <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="interviewModalLabel">Interview Schedule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid">
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-user"></i>&nbsp;Candidate's Name:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-briefcase"></i>&nbsp;Applied Job:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-user-tie"></i>&nbsp;Department Head:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-regular fa-user"></i>&nbsp;Team Leader:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-calendar-days"></i>&nbsp;Interview Date:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-clock"></i>&nbsp;Interview Time:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-leaf"></i>&nbsp;Interview Type:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><i class="fa-solid fa-paperclip"></i>&nbsp;<strong></strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto "><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+
+                          <p><strong><i class="fa-solid fa-user-group"></i>&nbsp;Interviewer:</strong>
+                          </p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-stairs"></i>&nbsp;Interview
+                              Stage:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- candidate interview table -->
+          <div class="container-fluid">
+
+            <div class="row">
+              <div th:if="!${EmptyInterviewList}" class="col-12">
+                <table id="candidateInterview" class="table table-striped w-100">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Interviewer</th>
+                      <th scope="col text-nowrap">Interview Date</th>
+                      <th scope="col">Type</th>
+                      <th scope="col text-nowrap">Interview Stage</th>
+                      <th scope="col">Result</th>
+                      <th class="col">Status</th>
+                      <th class="col text-nowrap">Send Mail</th>
+                      <th class="col">Action</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+
+              <div th:unless="!${EmptyInterviewList}" class="col-12 container mt-5">
+                <div class="no-data-message d-flex justify-content-center">
+                  <h5>There are no candidate's interviews at this time</h5>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script th:src="@{/js/main.js}"></script>
+
+  <!-- SockJS, STOMP, and Notification JS  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+  <script th:src="@{/js/websocket-sender.js}"></script>
+  <script th:src="@{/js/websocket-listener.js}"></script>
+  <script th:src="@{/js/notification.js}"></script>
+
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+  <script th:inline="javascript">
+    const candidate =/*[[${candidate}]]*/ null;
+    const interviewerDepart =/*[[${interviewerDepart}]]*/ null;
+    const candidateInterviewCount =/*[[${candidateInterviewCount}]]*/ null;
+    const interviewerTeam =/*[[${interviewerTeam}]]*/null;
+    const mailException =/*[[${mailException}]]*/ null;
+    const mailSuccess =/*[[${mailSuccess}]]*/ null;
+    const interviewCreateSuccess =/*[[${interviewCreateSuccess}]]*/null;
+    const interviewUpdateSuccess =/*[[${interviewUpdateSuccess}]]*/null;
+  </script>
+  <script th:src="@{/js/alertBox.js}"></script>
+  <script th:src="@{/js/tinymce.min.js}"></script>
+  <script th:src="@{/script.js}"></script>
+  <script th:src="@{/js/interviewDom.js}"></script>
+  <script th:src="@{/js/candidateInterview.js}"></script>

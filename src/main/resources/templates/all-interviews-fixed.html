@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta th:name="_csrf" th:content="${_csrf.token}" />
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>All Interviews</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+    <!-- Date Picker CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <link rel="stylesheet" th:href="@{/css/interviews.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="/css/popUp.css">
+    <link rel="stylesheet" href="/css/interviewCreate.css">
+    <link rel="stylesheet" href="/css/alertBox.css">
+    <link rel="stylesheet" href="/css/interview.css">
+    <link rel="stylesheet" href="/css/loading_mail.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div th:replace="custom_fragments :: sidebar"></div>
+            <div class="col p-0">
+                <div class="fluid-container">
+                    <!-- Main Header -->
+                    <div th:replace="custom_fragments :: main-header"></div>
+                    <!-- Main Content -->
+                    <div class="main-content">
+                        <!-- Write your code or content here -->
+                        <!--alert box-->
+                        <div th:replace="jobDetail_interview :: alertBox"></div>
+
+                        <!-- Confirm box modal for interview result -->
+                        <div th:replace="jobDetail_interview :: interviewResultConfirmBox"></div>
+
+                        <!-- Check box modal for interview result when send mail-->
+                        <div th:replace="jobDetail_Interview :: interviewResultCheckBox"></div>
+
+                        <!-- popUp for create and update interview -->
+                        <div id="popupDiv" class="row popup-div ">
+                            <div class="d-flex justify-content-end">
+                                <span><i class="fa-solid fa-xmark fa-lg popup-close-button"
+                                        onclick="closePopUp()"></i></span>
+                            </div>
+                            <div class="col-md-8 pt-5 container" style="max-width: 60rem;height: 35rem;">
+
+                                <h4 style="text-align: center;">Interview Schedule</h4>
+                                <!--for show error not send email -->
+                                <div class="error mt-4" style="text-align: center;" id="notSendEmail"
+                                    th:text="${notSendEmailExist}">
+                                </div>
+                                <div class="error" style="text-align: center;" id="interviewCreateError"></div>
+                                <form class="container justify-content-center mt-4  w-100" th:object="${schedule}"
+                                    method="post" id="contactForm" name="contactForm" th:action="@{/mng/interview/updateInterview}">
+                                    <div class="row justify-content-center mb-3 w-100">
+                                        <div class="col-md-5">
+                                            <div class="mb-3 ">
+
+                                                <input style="text-align: center;" type="date" class="form-control"
+                                                    name="interview_date" th:field="*{interviewDate}"
+                                                    id="interviewDate1">
+                                                <!-- for send candidate id  -->
+                                                <input type="hidden" th:value="${candidateId}" id="candidateId" name="candidateId">
+                                                <!--for send interview id-->
+                                                <input type="hidden" th:value="${interviewId}" name="interviewId"
+                                                    id="interviewId">
+                                                <!--for check and send jobDetailId -->
+                                                <input type="hidden" name="allInterviews" id="jobDetailId" value="All">
+                                            </div>
+                                        </div>
+                                        <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                                        <div class="col-md-6">
+                                            <div class="row mb-3 ">
+                                                <div class="col-sm-5">
+                                                    <input style="text-align: center;" th:value="${time1}" type="time"
+                                                        class="form-control" name="name" id="interviewTime1">
+                                                    <input type="hidden" name="time1" th:field="*{startTime}"
+                                                        id="time1">
+                                                </div>
+                                                <label class="col-sm-2"
+                                                    style="margin-top: 5px;text-align: center;">To</label>
+                                                <div class="col-sm-5">
+                                                    <input style="text-align: center;" th:value="${time2}" type="time"
+                                                        class="form-control" name="name" id="interviewTime2">
+                                                    <input type="hidden" name="time1" th:field="*{endTime}" id="time2">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+                                    <div class="row justify-content-center mb-3 w-100">
+                                        <div class="col-md-5 mt-3">
+
+                                            <select style="background-color:#f1f1f1 ;" name="interviewTypeId"
+                                                class="custom-select w-100" id="interviewType">
+                                                <option th:each="type :${typeList}" th:value="${type.id}"
+                                                    style="text-align: center;" th:text="${type.name}">
+                                                </option>
+                                            </select>
+
+
+                                        </div>
+                                        <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                                        <div class="col-md-6 mt-1">
+                                            <div class=" mb-3 ">
+                                                <input type="text" style="text-align: center;" class="form-control"
+                                                    name="location" id="typeValue"
+                                                    th:value="${typeList.get(0).meetingUrl==null? typeList.get(0).getLocation().building+','+
+                                                                typeList.get(0).getLocation().township+','+typeList.get(0).getLocation().division: typeList.get(0).meetingUrl}">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row justify-content-center mb-3 w-100">
+                                        <div class="col-md-5 mt-2">
+                                            <div class="custom-select" style="width: 250px;">
+                                                <button class="btn dropdown-toggle w-100" type="button"
+                                                    id="multiSelectDropdown" data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    Choose Interviewer...
+                                                </button>
+                                                <ul style="background-color: #f1f1f1;width: 22%;" class="dropdown-menu"
+                                                    id="dropdown-menu" aria-labelledby="multiSelectDropdown">
+                                                    <li style="margin-left: 10px;">
+                                                        <label>
+                                                            <input type="checkbox" name="departHeadId" th:value="${departHeadId}"
+                                                                th:checked="${interviewerDepart!=null}">
+                                                            Department Head
+                                                        </label>
+                                                    </li>
+                                                    <li style="margin-left: 10px;">
+                                                        <label>
+                                                            <input type="checkbox" name="teamLeaderId" th:value="${teamLeaderId}"
+                                                                th:checked="${interviewerTeam!=null}">
+                                                            Team Leader
+                                                        </label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <label class="col-md-1" style="margin-top: 5px;text-align: center;"></label>
+                                        <div class="col-md-6 mt-4">
+
+                                        <select style="background-color: #f1f1f1;" class="custom-select w-100"
+                                            id="stage" name="stageId">
+                                            <option th:each="stage : ${stageList}" th:text="${stage.name}"
+                                                th:value="${stage.id}" 
+                                                style="text-align: center;"></option>
+                                        </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row justify-content-center mt-5 mb-5">
+
+                                        <div class="col-md-5 form-group mb-3" style="max-width: 15rem;">
+                                            <input type="button" value="Cancel" onclick="closePopUp()"
+                                                class="btn btn-danger py-2 px-4">
+                                            <span class="submitting"></span>
+                                        </div>
+
+                                        <div class="col-md-3 form-group mb-3" style="max-width: 8rem;">
+                                            <input type="submit" th:value="${btnValue}" value="Create" id="createBtn"
+                                                onclick="return submitForm()" class="btn btn-success  py-2 px-4">
+                                            <span class="submitting"></span>
+                                        </div>
+
+
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-sm-1 d-flex" style="height: 500px;width: 50px;">
+                                <div class="vr"></div>
+                              </div>
+                            <div class="col-md-3 pt-5 container">
+                                <h4 style="text-align: center;margin-bottom: 80px;">Candidate's detail</h4>
+                                <div class="container-fluid mt-5" id="candidateDetail">
+                                  <div class="row justify-content-between">
+                                    <div class="col-md-4">
+                                      <p><strong>Name:</strong>
+                                      </p>
+                                    </div>
+                                    <div class="col-md-7"><span th:text="${candidateName}"></span></div>
+                                  </div>
+                                  <div class="row justify-content-between">
+                                    <div class="col-md-4">
+                                      <p><strong>Applied Job:</strong>
+                                      </p>
+                                    </div>
+                                    <div class="col-md-7"><span th:text="${jobPosition}"></span>
+                                      <span ></span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                        </div>
+                        <!--End tag-->
+
+                        <!-- popup for mail send -->
+                        <div th:replace="candidateInterview :: sendMailPopUp"></div>
+                        <!--End tag-->
+
+                        <!--Loading when send mail-->
+                        <div id="mySpinner"></div>
+                        <div class="container-fluid">
+                            <div class="col">
+                                <h2>All Interviews</h2>
+                            </div>
+                            <div class="d-flex overflow-auto p-2 filter-container">
+                                <!--Department-->
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="department">Department:</label>
+                                        <select class="col form-select" name="department" id="department">
+                                            <option value="">ALL</option>
+                                            <th:block th:each="department: ${department}">
+                                                <option th:value="${department.name}" th:text="${department.name}">
+                                                </option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!--Team-->
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="team">Team:</label>
+                                        <select class="col form-select" name="team" id="team">
+                                            <option value="">ALL</option>
+                                            <th:block th:each="team: ${team}">
+                                                <option th:value="${team.name}" th:text="${team.name}"></option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Date Range Picker Start -->
+                                <div class="col-md-2 ms-4 me-4">
+                                    <div class="row">
+                                        <div id="daterange"
+                                            style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                            <i class="fa fa-calendar"></i>&nbsp;
+                                            <input id="min-date" type="hidden" value="">
+                                            <input id="max-date" type="hidden" value="">
+                                            <span id="selected-daterange"></span>
+                                            <i class="fa fa-caret-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Date Range Picker End -->
+
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="type">Type:</label>
+                                        <select class="col form-select" name="type" id="type">
+                                            <option value="">ALL</option>
+                                            <th:block th:each="interviewType: ${typeList}">
+                                                <option th:value="${interviewType.name}"
+                                                    th:text="${interviewType.name}">
+                                                </option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="stage">Stages:</label>
+                                        <select class="col form-select" name="stage" id="stageInterview">
+                                            <option value="">ALL</option>
+                                            <th:block th:each="interviewStages: ${stageList}">
+                                                <option th:value="${interviewStages.name}"
+                                                    th:text="${interviewStages.name}">
+                                                </option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="result">Result:</label>
+                                        <select class="col form-select" name="result" id="result">
+                                            <option value="">ALL</option>
+                                            <option th:value="0">NEXT_INTERVIEW</option>
+                                            <option th:value="1">PASSED</option>
+                                            <option th:value="2">FAILED</option>
+                                            <option th:value="3">PENDING</option>
+                                            <option th:value="4">CANCEL</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="status">Status:</label>
+                                        <select class="col form-select" name="status" id="status">
+                                            <option value="">ALL</option>
+                                            <option th:value="0">ONGOING</option>
+                                            <option th:value="1">FINISHED</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 me-4">
+                                    <div class="row">
+                                        <label class="col col-auto col-form-label" for="status">Interview:</label>
+                                        <select class="col form-select" name="status" id="finalStage">
+                                            <option value="0" selected>ALL</option>
+                                            <option value="1">Final Stage</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div th:if="!${EmptyInterviewList}">
+                                <table id="interviews" class="table table-striped w-100">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Candidate</th>
+                                            <th scope="col">Interviewer(s)</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Type</th>
+                                            <th scope="col">Stage</th>
+                                            <th scope="col">Result</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Send Mail</th>
+                                            <th scope="col">Edit</th>
+                                            <th scope="col" class="d-none">Department</th>
+                                            <th scope="col" class="d-none">Team</th>
+                                        </tr>
+                                    </thead>
+
+                                </table>
+                            </div>
+                            <div th:unless="!${EmptyInterviewList}" class="col-12 container mt-5">
+                                <div class="no-data-message d-flex justify-content-center">
+                                <h5>There are no candidate's interviews at this time</h5>
+                                </div>
+                            </div>
+                            <!-- Modal box for interview schedule detail -->
+                            <div th:replace="candidateInterview :: interviewScheduleDetail"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    <!-- Date Picker JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <!-- SockJS, STOMP, and Notification JS  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+    <script th:src="@{/js/websocket-listener.js}"></script>
+    <script th:src="@{/js/notification.js}"></script>
+
+    <!-- Datatables JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+    <script th:inline="javascript">
+        const allInterviewList =/*[[${interviewList}]]*/'default';
+        const mailException =/*[[${mailException}]]*/ null;
+        const mailSuccess =/*[[${mailSuccess}]]*/ null;
+        const interviewUpdateSuccess=/*[[${interviewUpdateSuccess}]]*/null;
+        const interviewerDepart=/*[[${interviewerDepart}]]*/ null;
+        const interviewerTeam=/*[[${interviewerTeam}]]*/null;
+    </script>
+    <script th:src="@{/js/alertBox.js}"></script>
+    <script th:src="@{/js/interviewDom.js}"></script>
+    <script th:src="@{/js/tinymce.min.js}"></script>
+    <script th:src="@{/script.js}"></script>
+    <script th:src="@{/js/allInterviews.js}"></script>
+
+
+</body>
+
+</html>

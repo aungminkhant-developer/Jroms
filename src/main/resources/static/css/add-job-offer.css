@@ -1,0 +1,40 @@
+.menu {
+  border: 1px solid rgb(22, 22, 169);
+  border-radius: 5px;
+  min-height: 1em;
+  max-height: 8em;
+  overflow: auto;
+}
+
+.menu li {
+  list-style: none;
+  width: 100%;
+  margin: 0;
+  padding: 0.2em 0.5em;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+.selected {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+/* Text Editor */
+.textarea-like {
+  resize: both;
+}
+
+.btn-text-edit {
+  border: 1px solid #ced4da;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+}

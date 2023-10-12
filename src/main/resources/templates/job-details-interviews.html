@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+        <title>Frame</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css"/>
+        <link
+        rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+        <!-- Date Picker CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content">
+                            <!-- Write your code or content here -->
+                            <div>
+                                <div class="d-none" id="jobDetailIdElement" th:text="${jobDetailId}"></div>
+                                <h2>Date Range Filter</h2>
+
+                                <!-- Date Range Picker Start -->
+                                <div id="daterange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <i class="fa fa-calendar"></i>&nbsp;
+                                    <input id="min-date" type="hidden" value="">
+                                    <input id="max-date" type="hidden" value="">
+                                    <span id="selected-daterange"></span>
+                                    <i class="fa fa-caret-down"></i>
+                                </div>
+                                <!-- Date Range Picker End -->
+
+                                <table id="users" class="table table-striped w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Interviewer List</th>
+                                            <th>Interview Date</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Date Picker JS -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+        <!-- Bootstrap 5 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+
+        <!-- Datatables JS -->
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+        <script th:src="@{/js/main.js}"></script>
+        <script>
+            $(function () { 
+                const dateColumnIndex = 3;
+
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                const jobDetailId = document.getElementById("jobDetailIdElement").innerHTML;
+                console.log(jobDetailId);
+
+                $(document).ajaxSend(function (e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+
+                const table = $('table#users').DataTable({
+                    ajax: {
+                        contentType: 'application/json',
+                        url: '/mng/rest/jobDetailInterview?jobDetailId='+jobDetailId,
+                        type: 'POST',
+                        data: function (d) {
+                            return JSON.stringify(d);
+                        }
+                    },
+                    language: {
+                        "infoFiltered": "",
+                        searchPlaceholder: "Search query"
+                    },
+                    stateSave: true,
+                    serverSide: true,
+                    columns: [
+                        {
+                            data: 'id',
+                            render: function (data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        }, {
+                            data: 'candidate.name'
+                        }, {
+                            data: 'interviewerList'
+                        }, {
+                            data: 'interviewSchedule.interviewDate',
+                            render: function (data, type, row, meta) {
+                                return new Date(data).toLocaleString();
+                            },
+                            searchable: false
+                        }
+                    ]
+                });
+
+                table.column(dateColumnIndex).search(null).draw();
+
+                // Initialize date range picker
+                var start = null;
+                var end = null;
+
+                $("#daterange span").html("Select your date range")
+
+                function cb(start, end) {
+                    $("#min-date").val(start.format('YYYY-MM-DD'));
+                    $("#max-date").val(end.format('YYYY-MM-DD'));
+                    $('#daterange span').html(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                    table.column(dateColumnIndex).search(start.format('YYYY-MM-DD') + ";" + end.format('YYYY-MM-DD')).draw();
+                }
+
+                $('#daterange').daterangepicker({
+                    "showDropdowns": true,
+                    locale: {
+                        cancelLabel: 'Clear'
+                    },
+                    ranges: {
+                        'Today': [
+                            moment(), moment()
+                        ],
+                        'Yesterday': [
+                            moment().subtract(1, 'days'),
+                            moment().subtract(1, 'days')
+                        ],
+                        'Last 7 Days': [
+                            moment().subtract(6, 'days'),
+                            moment()
+                        ],
+                        'Last 30 Days': [
+                            moment().subtract(29, 'days'),
+                            moment()
+                        ],
+                        'This Month': [
+                            moment().startOf('month'), moment().endOf('month')
+                        ],
+                        'Last Month': [
+                            moment().subtract(1, 'month').startOf('month'),
+                            moment().subtract(1, 'month').endOf('month')
+                        ]
+                    },
+                    "alwaysShowCalendars": true
+                }, cb);
+
+                // return all rows when date range gets cleared
+                $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+                    $("#daterange span").html("Select your date range");
+                    table.column(dateColumnIndex).search(null).draw();
+                });
+
+            })
+        </script>
+
+    </body>
+
+</html>

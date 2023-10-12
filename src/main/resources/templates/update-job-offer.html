@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Candidates</title>
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" th:href="@{/css/add-job-offer.css}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <!--AlertBox-->
+        <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content"><!-- Write your code or content here -->
+                            <div class="fs-3 fw-semibold text-center mt-1">Update Job Offer <span>[ID: [[${updateJobDetail.id}]]]</span></div>
+                    <form id="update-job-offer-form" th:action="@{/mng/job-details/update}" method="post" th:object="${updateJobDetail}">
+                        <input type="hidden" th:field="*{id}" readonly>
+                        <div class="row mb-3 mt-3" id="job-position-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="job-position">Job Position</label>
+                            <div class="col-4">
+                                <select disabled class="form-select" th:field="*{jobTitle}" id="job-position">
+                                    <option th:each="jobTitle : ${jobTitles}" th:value="${jobTitle.id}" th:text="${jobTitle.name}"></option>
+                                </select>
+                                <input type="hidden" th:field="*{jobTitle}">
+                            </div>
+                            <span id="job-position-error" class="col col-form-label error" th:errors="*{jobTitle}"></span>
+                        </div>
+                        <div class="row mb-3" id="job-level-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="job-level">Job level</label>
+                            <div class="col-4">
+                                <select disabled class="form-select" th:field="*{jobLevel}" id="job-level">
+                                    <option value="">None</option>
+                                    <option th:each="jobLevel : ${jobLevels}" th:value="${jobLevel.id}" th:text="${jobLevel.name}"></option>
+                                </select>
+                                <input type="hidden" th:field="*{jobLevel}">
+                            </div>
+                            <span id="job-level-error" class="col col-form-label error" th:errors="*{jobLevel}"></span>
+                        </div>
+                        <div class="row mb-3" id="post-count-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="posts">Number of posts</label>
+                            <div class="col-4">
+                                <input type="number" class="form-control" min="1" id="posts" th:field="*{posts}">
+                            </div>
+                            <span id="posts-error" class="col col-form-label error" th:errors="*{posts}"></span>
+                        </div>
+                        <div class="row mb-3" id="salary-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="salary">Salary</label>
+                            <div class="col-4">
+                                <input type="text" class="form-control" id="salary" th:field="*{salary}">
+                            </div>
+                            <span id="salary-error" class="col col-form-label error" th:errors="*{salary}"></span>
+                        </div>
+                        <div class="row mb-3" id="work-schedule-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="work-schedule">Work Schedule</label>
+                            <div class="col-4">
+                                <select class="form-select" th:field="*{workSchedule}" id="work-schedule">
+                                    <option th:each="workSchedule : ${workSchedules}" th:value="${workSchedule.id}" th:text="${workSchedule.workingTime}"></option>
+                                </select>
+                            </div>
+                            <span id="work-schedule-error" class="col col-form-label error" th:errors="*{workSchedule}"></span>
+                        </div>
+                        <div class="row mb-3" id="location-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="location">Location</label>
+                            <div class="col-4">
+                                <select class="form-select" th:field="*{location}" id="location">
+                                    <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.locationStr}"></option>
+                                </select>
+                            </div>
+                            <span id="location-error" class="col col-form-label error" th:errors="*{location}"></span>
+                        </div>
+                        <div class="row mb-3" id="job-type-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="job-type">Job Type</label>
+                            <div class="col-4">
+                                <select class="form-select" th:field="*{jobType}" id="job-type">
+                                    <option th:each="jobType : ${jobTypes}" th:value="${jobType.id}" th:text="${jobType.name}"></option>
+                                </select>
+                            </div>
+                            <span id="job-type-error" class="col col-form-label error" th:errors="*{jobType}"></span>
+                        </div>
+                        <div class="row mb-3" id="team-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="team">Team</label>
+                            <div class="col-4">
+                                <select class="form-select" th:field="*{team}" id="team">
+                                    <option th:each="team : ${teams}" th:value="${team.id}" th:text="${team.name}"></option>
+                                </select>
+                            </div>
+                            <span id="team-error" class="col col-form-label error" th:errors="*{team}"></span>
+                        </div>
+                        <div class="row mb-3" id="open-date-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="posts">Open Date</label>
+                            <div class="col-4">
+                                <input type="date" th:min="*{openDate}" th:max="*{openDate}" th:field="*{openDate}" class="form-control" id="open-date" readonly>
+                            </div>
+                            <span id="open-date-error" class="col col-form-label error" th:errors="*{openDate}"></span>
+                        </div>
+                        <div class="row mb-3" id="expire-date-input-row">
+                            <label class="offset-3 col-2 col-form-label" for="posts">Expire Date</label>
+                            <div class="col-4">
+                                <input th:readonly="${isJobClosed}" type="date" th:min="${minExpireDate}" th:field="*{expireDate}" class="form-control" id="expire-date">
+                            </div>
+                            <div class="col-md-1 col-2 d-none">
+                                <button id="job-status-toggle-btn" type="button" class="btn w-100" th:classappend="${isJobClosed ? 'btn-danger' : 'btn-success'}" th:text="${isJobClosed ? 'CLOSED' : 'OPEN'}"></button>
+                            </div>
+                            <span id="expire-date-error" class="col col-form-label error" th:errors="*{expireDate}"></span>
+                        </div>
+                        <div class="row mb-3" id="description-input-row">
+                            <div class="offset-3 col-6 ps-0 accordion-item">
+                                <div class="accordion-header">
+                                    <button class="ms-0 col form-control d-flex justify-content-between align-items-center btn-text-edit" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-description">
+                                        <span>Description</span>
+                                        <i class="fa-solid fa-caret-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapse-description" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <textarea th:field="*{description}" class="col textarea-like" name="textArea" id="desc">
+                                            <span contenteditable="false"></textarea>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <span id="description-error" class="col col-form-label error" th:errors="*{description}"></span>
+                            </div>
+
+                            <div class="row mb-3" id="resp-input-row">
+                                <div class="offset-3 col-6 ps-0 accordion-item">
+                                    <div class="accordion-header">
+                                        <button class="ms-0 form-control d-flex justify-content-between align-items-center btn-text-edit" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-resp">
+                                            <span>Responsibilities</span>
+                                            <i class="fa-solid fa-caret-down"></i>
+                                        </button>
+                                    </div>
+                                    <div id="collapse-resp" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <textarea th:field="*{responsibilities}" class="col textarea-like" name="textArea" id="resp">
+                                                <span contenteditable="false"></textarea>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <span id="responsibilities-error" class="col col-form-label error" th:errors="*{responsibilities}"></span>
+                                </div>
+                                <div class="row mb-3" id="require-input-row">
+                                    <div class="offset-3 col-6 ps-0 accordion-item">
+                                        <div class="accordion-header">
+                                            <button class="ms-0 form-control d-flex justify-content-between align-items-center btn-text-edit" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-require">
+                                                <span>Requirements</span>
+                                                <i class="fa-solid fa-caret-down"></i>
+                                            </button>
+                                        </div>
+                                        <div id="collapse-require" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <textarea th:field="*{requirement}" class="col textarea-like" name="textArea" id="require">
+                                                    <span contenteditable="false"></textarea>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <span id="requirement-error" class="col col-form-label error" th:errors="*{requirement}"></span>
+                                    </div>
+                                    <div class="row mb-3" id="pref-input-row">
+                                        <div class="offset-3 col-6 ps-0 accordion-item">
+                                            <div class="accordion-header">
+                                                <button class="ms-0 form-control d-flex justify-content-between align-items-center btn-text-edit" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pref">
+                                                    <span>Preferences</span>
+                                                    <i class="fa-solid fa-caret-down"></i>
+                                                </button>
+                                            </div>
+                                            <div id="collapse-pref" class="accordion-collapse collapse">
+                                                <div class="accordion-body">
+                                                    <textarea th:field="*{preferences}" class="col textarea-like" name="textArea" id="pref">
+                                                        <span contenteditable="false"></textarea>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <span id="preferences-error" class="col col-form-label error" th:errors="*{preferences}"></span>
+                                        </div>
+                                        <div class="row mb-3" id="pref-input-row">
+                                            <div class="offset-7 col-2 ps-0 accordion-item">
+                                                <button type="button" class="btn btn-primary form-control" data-bs-toggle="modal" data-bs-target="#confirm-add">Submit</button>
+                                            </div>
+                                            <span id="new-job-offer-error" class="col col-form-label error" th:errors="${updateJobDetail}"></span>
+                                        </div>
+                                    </form>
+
+                                    <!-- Add confirmation modal -->
+                                    <div class="modal fade" id="confirm-add">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="text-primary">Confirmation</h3>
+                                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="fs-5">Are you sure to update the job offer?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button class="btn btn-primary" data-bs-dismiss="modal" onclick="updateJobOffer()">Confirm</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="jobDetail_Interview :: alertBox"></div>
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+        <script th:src="@{/js/main.js}"></script>
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+        <script th:src="@{/js/update-job-offer.js}"></script>
+        <script th:src="@{/js/tinymce.min.js}"></script>
+        <script th:src="@{/js/text-editor.js}"></script>
+
+        <!--AlertBox-->
+        <script th:src="@{/js/alertBox.js}"></script>
+        <script th:inline="javascript">
+
+            const jobDetailUpdateSuccess =/*[[${jobDetailUpdateSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (jobDetailUpdateSuccess != null) {
+                togglePopupSuccess("Success", jobDetailUpdateSuccess);
+            }
+
+        </script>
+    </body>
+</html>

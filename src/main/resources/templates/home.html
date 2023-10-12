@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>Job Openings</title>
+		<link rel="stylesheet" th:href="@{/css/styles.css}" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+			crossorigin="anonymous"
+		/>
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+			integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+
+		<link
+			href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+			rel="stylesheet"
+		/>
+		<link rel="icon" type="image/png" href="images/Logo-removebg-preview.png" />
+
+		<style>
+			body {
+				background-color: whitesmoke;
+			}
+
+			.job-list {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-evenly;
+			}
+
+			.job-item {
+				width: 48%;
+				padding: 20px;
+				background-color: #fff;
+				border-radius: 5px;
+				margin-bottom: 20px;
+				/* margin-right: 20px; */
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+				position: relative;
+			}
+
+			h2 {
+				font-size: 24px;
+				margin-bottom: 10px;
+			}
+
+			.location {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.salary {
+				color: #2ecc71;
+				margin-bottom: 10px;
+			}
+
+			.dates {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.vacancies {
+				color: #888;
+				margin-bottom: 10px;
+			}
+
+			.status {
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				padding: 5px 10px;
+				border-radius: 5px;
+				color: #fff;
+				font-weight: bold;
+			}
+
+			.open {
+				background-color: #2ecc71;
+			}
+
+			.closed {
+				background-color: #e74c3c;
+			}
+
+			.search-btn {
+				display: inline-block;
+				background-color: #000000;
+				color: #fff;
+				padding: 20px 20px;
+				border: none;
+
+				transition: background-color 0.3s;
+			}
+
+			.bg-black {
+				background-color: #000;
+				color: #fff;
+				padding: 5px;
+				border-radius: 50%;
+			}
+
+			/* Advanced CSS animation using Animate.css */
+			.animated {
+				animation-duration: 1s;
+				animation-fill-mode: both;
+			}
+
+			.fadeIn {
+				animation-name: fadeIn;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+
+			.wrap {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.search {
+				position: relative;
+				display: flex;
+				align-items: center;
+				/* width: 20rem; */
+			}
+
+			.searchTerm {
+				width: 20rem;
+				padding: 7px 10px;
+				border-radius: 0 20px 20px 0;
+				outline: none;
+				color: #333;
+				border: 1px solid #333333;
+				border-left: none;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			}
+
+			.searchButton {
+				width: 40px;
+				height: 40px;
+				border: none;
+				background-color: #333;
+				color: #fff;
+				border-radius: 20px 0 0 20px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Updated box shadow */
+				cursor: none;
+			}
+
+			.fa-search {
+				font-size: 18px;
+			}
+
+			.select-menu {
+				width: 15rem;
+				margin: 20px auto;
+				position: relative; /* Add this line */
+			}
+			.select-menu .select-btn {
+				display: flex;
+				height: 40px;
+				background: #fff;
+				padding: 20px 10px 20px 0;
+				font-size: 0.9rem;
+				font-weight: 400;
+				border-radius: 8px;
+				align-items: center;
+				cursor: pointer;
+				justify-content: space-between;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Updated box shadow */
+			}
+			.select-btn i {
+				font-size: 25px;
+				transition: 0.3s;
+			}
+			.select-menu.active .select-btn i {
+				transform: rotate(-180deg);
+			}
+			.select-menu .options {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				width: 100%;
+				padding: 10px;
+				margin-top: 10px;
+				border-radius: 8px;
+				background: #fff;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+				display: none;
+				z-index: 1;
+				/* Custom scrollbar styles */
+				scrollbar-width: thin; /* For Firefox */
+				scrollbar-color: #ccc transparent; /* For Firefox */
+			}
+
+			.select-menu .options::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			.select-menu .options::-webkit-scrollbar-thumb {
+				background-color: #ccc;
+				border-radius: 3px;
+			}
+
+			.select-menu .options::-webkit-scrollbar-thumb:hover {
+				background-color: #999;
+			}
+
+			.select-menu.active .options {
+				display: block;
+			}
+
+			.options {
+				max-height: 100px;
+				overflow-y: scroll;
+			}
+
+			.options .option {
+				display: flex;
+				height: 40px;
+				cursor: pointer;
+				padding: 0 16px;
+				border-radius: 8px;
+				align-items: center;
+				background: #fff;
+				transition: transform 0.2s ease;
+			}
+			.options .option:hover {
+				background: #f2f2f2;
+				transform: translateY(-5px);
+			}
+			.option i {
+				font-size: 25px;
+				margin-right: 12px;
+				transition: transform 0.2s ease;
+			}
+
+			.options .option:hover i {
+				transform: scale(1.1);
+			}
+
+			.option .option-text {
+				font-size: 0.9rem;
+				color: #333;
+				text-decoration: none;
+				transition: transform 0.2s ease;
+			}
+
+			.options .option:hover .option-text {
+				transform: translateY(-5px);
+			}
+
+			.label {
+				display: inline-block;
+				padding: 10px;
+				border-radius: 8px 0 0 8px;
+				background-color: #333333;
+				color: #ffff;
+			}
+
+			.no-data-message {
+				padding: 10px;
+				background-color: #ffdddd;
+				color: #ff0000;
+				border: 1px solid #ff0000;
+			}
+		</style>
+
+		<!--AlertBox-->
+		<link rel="stylesheet" th:href="@{/css/alertBox.css}">
+	</head>
+	<body>
+		<div th:replace="fragment/navbar :: header"></div>
+
+		<!--  <div th:if="${success}"  th:text="${success}" class=" alert alert-success d-flex align-items-center alert-dismissible fade show"></div>
+<div th:if="${error}"  th:text="${error}" class=" alert alert-danger d-flex align-items-center alert-dismissible fade show"></div>-->
+<div th:replace="jobDetail_Interview :: alertBox"></div>
+
+		<div
+			class="d-none"
+			data-type="applicant"
+			th:data-noti="${notification}"
+			id="notification-message"
+		></div>
+		<main>
+			<div class="container pb-4">
+				<div class="d-flex flex-wrap justify-content-between">
+					<div class="search">
+						<button
+							type="button"
+							class="searchButton"
+							id="searchBtn"
+							style="cursor: none"
+						>
+							<i class="fa fa-search"></i>
+						</button>
+						<input
+							type="text"
+							class="searchTerm"
+							id="searchQuery"
+							placeholder="What are you looking for?"
+						/>
+					</div>
+					<div class="select-menu">
+						<div class="select-btn">
+							<span class="label">Location</span>
+							<span class="sBtn-text text-nowrap" id="location-filter"
+								>All</span
+							>
+							<i class="bx bx-chevron-down"></i>
+						</div>
+
+						<ul class="options">
+							<li class="option">
+								<span th:data-value="All" class="option-text">All</span>
+							</li>
+							<li th:each="location : ${locations}" class="option">
+								<span
+									th:data-value="${location}"
+									class="option-text"
+									th:text="${location}"
+								></span>
+							</li>
+						</ul>
+					</div>
+					<div class="select-menu">
+						<div class="select-btn">
+							<span class="label">Position</span>
+							<span class="sBtn-text text-nowrap" id="position-filter"
+								>All</span
+							>
+							<i class="bx bx-chevron-down"></i>
+						</div>
+
+						<ul class="options">
+							<li class="option">
+								<span th:data-value="0" class="option-text">All</span>
+							</li>
+							<li th:each="jobTitle : ${jobTitle}" class="option">
+								<span
+									th:data-value="${jobTitle.id}"
+									class="option-text"
+									th:text="${jobTitle.name}"
+								></span>
+							</li>
+						</ul>
+					</div>
+					<div class="select-menu">
+						<div class="select-btn">
+							<span class="label">Status</span>
+							<span class="sBtn-text text-nowrap" id="status-filter">All</span>
+							<i class="bx bx-chevron-down"></i>
+						</div>
+
+						<ul class="options">
+							<li class="option">
+								<span th:data-value="All" class="option-text">All</span>
+							</li>
+							<li class="option">
+								<span th:data-value="OPEN" class="option-text">Open</span>
+							</li>
+							<li class="option">
+								<span th:data-value="CLOSED" class="option-text">Closed</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<hr />
+				<div class="container">
+					<h1 class="text-center mb-5">Job Openings</h1>
+					<hr />
+
+					<div class="job-list" id="job-list">
+						<!-- Jobs will dynamically add here-->
+					</div>
+				</div>
+				<hr />
+
+				<div class="container d-flex justify-content-center align-items-center">
+					<nav aria-label="Page navigation">
+						<ul class="pagination" id="pagination">
+							<!--pagination will be here-->
+						</ul>
+					</nav>
+				</div>
+
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+				<!-- SockJS, STOMP, and Notification JS  -->
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+				<script th:src="@{/js/websocket-sender.js}"></script>
+
+				<!-- Your existing HTML code for dropdown menus -->
+
+				<script>
+					let searchQuery = "";
+					let locationValue = "All";
+					let positionValue = 0;
+					let statusValue = "All";
+					let message = "";
+					let dataNumber = 0;
+
+					const searchBox = document.getElementById("searchQuery");
+					const optionMenus = document.querySelectorAll(".select-menu");
+					const searchButton = document.getElementById("searchBtn");
+
+					searchBox.addEventListener("input", function () {
+						searchQuery = searchBox.value; // Get the value from the input field
+						console.log(searchQuery);
+						updateMessage();
+						fetchJobs(dataNumber + 1);
+						message = ""; // clear messsage value
+					});
+
+					optionMenus.forEach((optionMenu) => {
+						const selectBtn = optionMenu.querySelector(".select-btn");
+						const sBtn_text = optionMenu.querySelector(".sBtn-text");
+						const options = optionMenu.querySelectorAll(".option");
+
+						selectBtn.addEventListener("click", () => {
+							optionMenu.classList.toggle("active");
+						});
+
+						options.forEach((option) => {
+							option.addEventListener("click", () => {
+								let selectedOption =
+									option.querySelector(".option-text").textContent;
+
+								let dataValue = option
+									.querySelector(".option-text")
+									.getAttribute("data-value");
+								let filterType = selectBtn.querySelector(".label").textContent;
+
+								if (filterType === "Location") {
+									locationValue = dataValue;
+									console.log("location" + locationValue);
+								} else if (filterType === "Position") {
+									positionValue = dataValue;
+									console.log("position" + typeof positionValue);
+								} else if (filterType === "Status") {
+									statusValue = dataValue;
+									console.log("status" + statusValue);
+								}
+
+								sBtn_text.innerText = selectedOption;
+								sBtn_text.setAttribute("data-value", dataValue);
+								optionMenu.classList.remove("active");
+								updateMessage();
+								fetchJobs(dataNumber + 1);
+								message = ""; // clear messsage value
+							});
+						});
+					});
+
+					function updateMessage() {
+						if (searchQuery.trim().length !== 0) {
+							message += `&searchQuery=${searchQuery}`;
+						}
+						if (locationValue !== "All") {
+							message += `&location=${locationValue}`;
+						}
+						if (positionValue != 0) {
+							message += `&position=${positionValue}`;
+						}
+						if (statusValue !== "All") {
+							message += `&status=${statusValue}`;
+						}
+
+						console.log(message);
+					}
+
+					// Fetch jobs from the server and display them on the page
+					function fetchJobs(page) {
+						fetch(`/getJobs?pageNo=${page}${message}`)
+							.then((response) => {
+								if (!response.ok) {
+									throw new Error("Network response was not ok");
+								}
+								return response.json();
+							})
+							.then((data) => {
+								console.log("API Response:", data);
+								console.log("data number = " + data.number);
+
+								const jobListContainer = document.getElementById("job-list");
+								jobListContainer.innerHTML = ""; // clear the container
+								const pagination = document.getElementById("pagination");
+								pagination.innerHTML = ""; // Clear the pagination
+
+								if (data.content.length === 0) {
+									const noDataMessage = document.createElement("div");
+
+									noDataMessage.className = "no-data-message";
+									noDataMessage.textContent =
+										"There are no available job positions at this time. Keep an eye out for future opportunities!";
+									jobListContainer.appendChild(noDataMessage);
+									pagination.innerHTML = "";
+									return;
+								}
+
+								const totalPages = data.totalPages;
+								const currentPage = data.number + 1;
+
+								// Display previous page link
+								const prevPageItem = document.createElement("li");
+								prevPageItem.className =
+									"page-item" + (data.first ? " disabled" : "");
+								prevPageItem.innerHTML = `
+					    <a href="#" class="page-link" aria-label="Previous" onclick="fetchJobs(${
+								currentPage - 1
+							}); return false;">
+					        <span aria-hidden="true">&laquo;</span>
+					    </a>
+					`;
+								pagination.appendChild(prevPageItem);
+
+								// Display pages
+								for (let i = 1; i <= totalPages; i++) {
+									if (
+										i === 1 ||
+										i === totalPages ||
+										(i >= currentPage - 2 && i <= currentPage + 2)
+									) {
+										const pageItem = document.createElement("li");
+										pageItem.className =
+											"page-item" + (currentPage === i ? " active" : "");
+										pageItem.innerHTML = `
+					            <a href="#" class="page-link" onclick="fetchJobs(${i}); return false;">${i}</a>
+					        `;
+										pagination.appendChild(pageItem);
+									} else if (i === currentPage - 3 || i === currentPage + 3) {
+										const ellipsisItem = document.createElement("li");
+										ellipsisItem.className = "page-item disabled";
+										ellipsisItem.innerHTML = `
+					            <span class="page-link">&hellip;</span>
+					        `;
+										pagination.appendChild(ellipsisItem);
+									}
+								}
+
+								// Display next page link
+								const nextPageItem = document.createElement("li");
+								nextPageItem.className =
+									"page-item" + (data.last ? " disabled" : "");
+								nextPageItem.innerHTML = `
+					    <a href="#" class="page-link" aria-label="Next" onclick="fetchJobs(${
+								currentPage + 1
+							}); return false;">
+					        <span aria-hidden="true">&raquo;</span>
+					    </a>
+					`;
+								pagination.appendChild(nextPageItem);
+
+								data.content.forEach((job) => {
+									const now = new Date();
+									const expireDate = new Date(job.expireDate);
+									const jobItem = document.createElement("div");
+									jobItem.className = "job-item animated fadeIn";
+									jobItem.innerHTML = `
+									<h2>
+														<i class="fas fa-code bg-black"></i>
+														<span>${job.jobLevel !== null ? job.jobLevel.name : ""}</span>
+														<span>${job.jobTitle.name}</span>
+														</h2>
+															<p class="location">
+																<i class="fas fa-map-marker-alt"></i>
+																${job.location.building}, ${job.location.township}, ${job.location.division}
+															</p>
+															<p class="salary">
+																<i class="fas fa-money-bill"></i> Salary: ${job.salary}
+															</p>
+															<p class="dates">
+																<i class="fas fa-calendar-check"></i> Open:
+																${new Date(job.openDate).toLocaleDateString("en-US", {
+																	year: "numeric",
+																	month: "long",
+																	day: "numeric",
+																})}
+																- <i class="fas fa-calendar-times"></i> Closed:
+																${new Date(job.expireDate).toLocaleDateString("en-US", {
+																	year: "numeric",
+																	month: "long",
+																	day: "numeric",
+																})}
+															</p>
+															<p class="vacancies">
+																<i class="fas fa-users"></i> <span>${job.posts}</span> posts available
+															</p>
+															<p class="vacancies">
+																<i class="fas fa-briefcase"></i> <span>${job.jobType.name}</span>
+															</p>
+															<p class="status ${expireDate > now ? "open" : "closed"}">
+																<span>${expireDate > now ? "Open" : "Closed"}</span>
+															</p>
+															<a href="/job-details/${job.id}" class="btn btn-primary">See Details</a>
+															`;
+
+									jobListContainer.appendChild(jobItem);
+								});
+							})
+							.catch((error) => {
+								console.error("Error:", error);
+								const errorMessage = document.createElement("div");
+								errorMessage.className = "error-message";
+								errorMessage.textContent =
+									"Oops! We're experiencing technical difficulties at the moment. Our servers are having a bit of trouble fetching the job listings. Please accept our apologies for the inconvenience. Our team is working hard to fix this issue. Please check back later or refresh the page.";
+								jobListContainer.appendChild(errorMessage);
+							});
+					}
+
+					// Fetch the first page of jobs when the page loads
+					fetchJobs(dataNumber + 1);
+				</script>
+
+				<script
+					src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+					integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+					crossorigin="anonymous"
+				></script>
+
+
+				 <!--AlertBox-->
+				 <script th:src="@{/js/alertBox.js}"></script>
+				
+				<script th:inline="javascript">
+					const successApply =/*[[${error}]]*/ null;
+					if (successApply != null) {
+						togglePopupSuccess("Success!", successApply);
+					}
+				</script>
+			</div>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,56 @@
+.popup-divAlert {
+    position: fixed;
+    top: 20%;
+    right: -100%;
+    transform: translate(0, -50%);
+    width: 70%;
+    height: auto;
+    background-color: #f1f1f1;
+    z-index: 1;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 7px;
+    transition: right 0.3s ease-in-out;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.7);
+}
+
+.custom-warning-bg-color {
+    border: 1px solid #ffeeba;
+    background-color: #fff3cd;
+    color: #856445;
+}
+
+.custom-danger-bg-color {
+    border: 1px solid #f5c5cb;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.custom-success-bg-color {
+    border: 1px solid #c3e6cb;
+    background-color: #d4edda;
+    color: #155776;
+}
+
+.popup-divAlert.show {
+    right: 15%;
+    z-index: 999; /* Updated: Set a high z-index for the shown div */
+}
+
+.popup-close-button {
+    cursor: pointer;
+}
+
+.timer-bar {
+    height: 5px;
+    background-color: #d6d8d9;
+    border-radius: 0 0 7px 7px;
+}
+
+.timer-progress {
+    height: 100%;
+    background-color: #1b2e74;
+    border-radius: 0 0 7px 7px;
+    width: 0;
+    transition: width 1ms linear;
+}

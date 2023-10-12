@@ -1,0 +1,70 @@
+.menu {
+  border: 1px solid rgb(22, 22, 169);
+  border-radius: 5px;
+  min-height: 1em;
+  max-height: 8em;
+  overflow: auto;
+}
+
+.menu li {
+  list-style: none;
+  width: 100%;
+  margin: 0;
+  padding: 0.2em 0.5em;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+.selected {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+/* Add job position */
+td i {
+  cursor: pointer;
+}
+
+.fa-trash {
+  color: rgb(208, 9, 9);
+}
+
+.fa-pen-to-square {
+  color: rgb(94, 94, 94);
+}
+
+.miscellaneous-table {
+  max-height: 200px;
+  overflow: scroll;
+}
+
+.miscellaneous-table::-webkit-scrollbar {
+  width: 2px;
+}
+
+.miscellaneous-table::-webkit-scrollbar-thumb {
+  background-color: rgb(198, 198, 198);
+}
+
+.content-area {
+  padding: 0.4em 2em;
+}
+
+.audit-info {
+  font-size: 0.8em;
+  color: rgb(131, 131, 131);
+}
+
+/* Text Editor */
+.textarea-like {
+  resize: both;
+}
+
+.btn-text-edit {
+  border: 1px solid #ced4da;
+}

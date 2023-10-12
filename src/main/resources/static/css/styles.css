@@ -1,0 +1,361 @@
+
+body{
+    padding-bottom: 70px;
+    background-color: azure;
+  }
+  
+  .navbar-logo {
+    min-width: 25px;
+    max-width: 75px;
+    min-height: auto;
+    max-height: fit-content;
+  }
+  
+  .custom-footer {
+    background-color: rgb(0, 51, 102);
+  }
+  
+  .custom-color {
+    color: rgb(31, 72, 124);
+  }
+  
+  .custom-border {
+    border-left: 2px solid grey;
+  }
+  
+  @media (max-width: 767.98px) {
+    .custom-border {
+        border-left: none;
+        border-bottom: 2px solid grey;
+    }
+  }
+  
+  .box {
+    background-color: lightblue;
+    border: 1px solid blue;
+    min-height: 50px;
+    font-size: 2rem;
+  }
+  
+  .custom-icon {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    
+  }
+  
+  .active-icon {
+    background-color: green;
+  }
+  
+  .closed-icon {
+    background-color: red;
+  }
+  
+  .custom-card-border {
+    outline: 5px solid lightslategray;
+    border-radius: 5px;
+  }
+  
+  .custom-card-bg-color {
+    background-color: rgb(59, 119, 179);
+  }
+  
+  .custom-border-right {
+    border-right: 2px solid rgb(213,215,217);
+   /* height: fit-content; */
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /* ===== Career ===== */
+  .career-form {
+  background-color: #4e63d7;
+  border-radius: 5px;
+  padding: 0 16px;
+  }
+  
+  
+  
+  .career-form .form-control {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 0;
+  padding: 12px 15px;
+  color: #fff;
+  }
+  
+  .career-form .form-control::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  color: #fff;
+  }
+  
+  .career-form .form-control::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #fff;
+  }
+  
+  .career-form .form-control:-ms-input-placeholder {
+  /* IE 10+ */
+  color: #fff;
+  }
+  
+  .career-form .form-control:-moz-placeholder {
+  /* Firefox 18- */
+  color: #fff;
+  }
+  
+  .career-form .custom-select {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 0;
+  padding: 12px 15px;
+  color: #fff;
+  width: 100%;
+  border-radius: 5px;
+  text-align: left;
+  height: auto;
+  background-image: none;
+  }
+  
+  .career-form .custom-select:focus {
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  }
+  
+  .career-form .select-container {
+  position: relative;
+  }
+  
+  .career-form .select-container:before {
+  position: absolute;
+  right: 15px;
+  top: calc(50% - 14px);
+  font-size: 18px;
+  color: #ffffff;
+  content: '\F2F9';
+  font-family: "Material-Design-Iconic-Font";
+  }
+  
+  .filter-result .job-box {
+  background:#f8f8f8;
+  -webkit-box-shadow: 0 0 35px 0 rgba(130, 130, 130, 0.2);
+          box-shadow: 0 0 35px 0 rgba(130, 130, 130, 0.2);
+  border-radius: 10px;
+  padding: 10px 35px;
+  
+  }
+  
+  ul {
+  list-style: none; 
+  border-radius: 5px;
+  }
+  
+  
+  
+  .list-disk li {
+  list-style: none;
+  margin-bottom: 12px;
+  }
+  
+  .list-disk li:last-child {
+  margin-bottom: 0;
+  }
+  
+  .job-box .img-holder {
+  height: 65px;
+  width: 65px;
+  background-color: #4e63d7;
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(78, 99, 215, 0.9)), to(#5a85dd));
+  background-image: linear-gradient(to right, rgba(78, 99, 215, 0.9) 0%, #5a85dd 100%);
+  font-family: "Open Sans", sans-serif;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  border-radius: 65px;
+  }
+  
+  
+  
+  .job-content{
+  
+  border-radius: 10px;
+  margin: 2px 10px 2px 10px;
+  }
+  
+  .career-title {
+  background-color: #4e63d7;
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(78, 99, 215, 0.9)), to(#5a85dd));
+  background-image: linear-gradient(to right, rgba(78, 99, 215, 0.9) 0%, #5a85dd 100%);
+  }
+  
+  .job-overview {
+  -webkit-box-shadow: 0 0 35px 0 rgba(130, 130, 130, 0.2);
+          box-shadow: 0 0 35px 0 rgba(130, 130, 130, 0.2);
+  border-radius: 10px;
+  }
+  
+  @media (min-width: 992px) {
+  .job-overview {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+  }
+  }
+  
+  .job-overview .job-detail ul {
+  margin-bottom: 28px;
+  }
+  
+  .job-overview .job-detail ul li {
+  opacity: 0.75;
+  font-weight: 600;
+  margin-bottom: 15px;
+  }
+  
+  .job-overview .job-detail ul li i {
+  font-size: 20px;
+  position: relative;
+  top: 1px;
+  }
+  
+  .job-overview .overview-bottom,
+  .job-overview .overview-top {
+  padding: 35px;
+  }
+  
+ 
+  .job-content ul li{
+  font-weight: 600;
+  opacity: 0.75;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 5px;
+  }
+  
+  .posts {
+    font-weight: 600;
+    opacity: 0.75;
+    
+    }
+  
+    .posts i{
+      font-size: 20px;
+    }
+  
+  @media (min-width: 768px) {
+  .job-content ul li {
+    border-bottom: 0;
+    padding: 0;
+  }
+  }
+  /* @media (min-width: 1024px) {
+  .job-content ul li {
+    border-bottom: 0;
+    padding: 0;
+  }
+  } */
+  
+  .job-content ul li i {
+  font-size: 20px;
+  position: relative;
+  top: 1px;
+  }
+  
+  .mb-30 {
+    margin-bottom: 30px;
+  }
+  
+  * {
+  box-sizing: border-box;
+  }
+  
+  .dropdown {
+  min-width: 1em;
+  position: relative;
+  margin: 0;
+  max-width: 12em;
+  }
+  
+  .select {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  color: black;
+  border: 2px solid #1f4880;
+  border-radius: 0.5em;
+  padding: 5px;
+  cursor: pointer;
+  transition: background 0.5s;
+  }
+  
+  .select:hover {
+  background: #fff;
+  }
+  
+  .select-clicked {
+  border: 2px #0054ca solid;
+  box-shadow: 0 0 0.8em #3770c0;
+  }
+  
+  .menu {
+  max-height: 200px;
+  overflow-y: scroll;
+  list-style: none;
+  padding: 0.2em 0.5em;
+  background: #fff;
+  border: 1px solid #1d4275;
+  color: black;
+  border-radius: 0.5em;
+  position: absolute;
+  top: 2.5em;
+  width: 100%;
+  opacity: 0;
+  display: none;
+  transition: 0.2s;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .menu li {
+  padding: 0.7em 0.5em;
+  margin: 0.3em 0;
+  border-radius: 0.5em;
+  cursor: pointer;
+  }
+  
+  .menu li:hover {
+  background: rgb(199,200,201);
+  }
+  
+  .active-li {
+  background: rgb(143, 144, 145);
+  }
+  
+  .menu-open {
+  display: block;
+  opacity: 1;
+  }

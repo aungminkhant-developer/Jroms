@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemalocation="http://www.thymeleaf.org "
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta th:name="_csrf" th:content="${_csrf.token}" />
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Users</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css"
+    />
+    <link rel="stylesheet" href="/css/alertBox.css" />
+    <!-- <link rel="stylesheet" th:href="@{/css/loading_mail.css}"> -->
+
+    <style>
+      /* .error-display {
+				color: red;
+				font-size: 14px;
+				height: 14px;
+			}
+			.box-style {
+				border: 1px inset rgb(150, 150, 150);
+				border-radius: 5px;
+				box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+			} */
+
+      /* Styling for the confirmation modal */
+      .confirmation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9998;
+      }
+
+      .confirmation-modal-content {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 30px;
+        max-width: 500px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        animation: unfoldModal 0.3s forwards;
+      }
+
+      .custom-font-style {
+        font-weight: bolder;
+        font-style: italic;
+      }
+
+      .warning-container {
+        padding: 5px 10px;
+        background-color: #ffeeb5;
+        color: #85646c;
+        border-left: 5px solid #aa903a;
+        border-radius: 5px;
+      }
+
+      /* Styling for both modal buttons */
+      .modal-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      /* Styling for the "Cancel" button */
+      .cancel {
+        background-color: #e74c3c;
+        color: #fff;
+      }
+
+      /* Styling for the "Yes" button */
+      .confirm {
+        background-color: #2ecc71;
+        color: #fff;
+      }
+
+      /* Hover effect for both buttons */
+      button:hover {
+        opacity: 0.8;
+      }
+
+      /* Unfolding animation */
+      @keyframes unfoldModal {
+        0% {
+          transform: translate(-50%, -70%) scaleY(0);
+        }
+        100% {
+          transform: translate(-50%, -50%) scaleY(1);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <div th:replace="custom_fragments :: sidebar"></div>
+        <div class="col p-0">
+          <div class="fluid-container">
+            <!-- Main Header -->
+            <div th:replace="custom_fragments :: main-header"></div>
+            <!-- Main Content -->
+            <div class="main-content">
+              <!-- Write your code or content here -->
+              <!-- <div class="row container-fluid">
+                <div th:text="${deleteSuccess}"></div> -->
+                <div class="col">
+                  <!-- this is warning alert box-->
+					<div th:replace="jobDetail_Interview :: alertBox"></div>
+        </div>
+                  
+
+                  <hr />
+
+                  <!--Filters-->
+                  <div
+                    class="row d-flex align-items-center justify-content-between"
+                  >
+                    <div class="col-md-5">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="searchInput"
+                        placeholder="Search"
+                      />
+                    </div>
+                    <div class="vr" style="padding: 0"></div>
+
+                    <div class="col-md-2">
+                      <div class="row">
+                        <label class="col-auto col-form-label" for="role"
+                          >Role:</label
+                        >
+                        <select class="col form-select" name="role" id="role">
+                          <option value="">All</option>
+                          <th:block th:each="role : ${roles}">
+                            <!-- Use the original role name as the filter value -->
+                            <option
+                              th:value="${role.name}"
+                              th:text="${role.name.replaceFirst('^ROLE', '').replace('_', ' ')}"
+                            ></option>
+                          </th:block>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="vr ms-3" style="padding: 0"></div>
+
+                    <div class="col-md-2">
+                      <div class="row">
+                        <label class="col-auto col-form-label" for="status"
+                          >Status:</label
+                        >
+                        <select
+                          class="col form-select"
+                          name="status"
+                          id="status"
+                        >
+                          <option value="">All</option>
+                          <option value="1">Enabled</option>
+                          <option value="0">Disabled</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="vr ms-3" style="padding: 0"></div>
+
+                    <div class="col-md-2">
+                      <div class="row">
+                        <button class="btn btn-secondary" id="clear-filter">Clear Filter</button>
+                      </div>
+                    </div>
+
+                    <div class="vr ms-3" style="padding: 0"></div>
+                  </div>
+
+                  <hr />
+
+                  <!--table-->
+
+                  <table
+                    class="w-100 table table table-striped col-12"
+                    id="example"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col-1" class="text-center">#</th>
+                        <th scope="col" class="text-center">Name</th>
+
+                        <th scope="col" class="text-center">Username</th>
+                        <th scope="col" class="text-center">Email</th>
+
+                        <!--Status-->
+                        <th scope="col" class="text-center">Role</th>
+                        <th scope="col" class="text-center">Status</th>
+                        <!-- <th scope="col" class="text-center">Online/Offline</th> -->
+
+                        <!--Actions-->
+                        <th scope="col" class="text-center">Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- The delete confirmation modal -->
+              <div class="confirmation-modal" id="confirmationModal">
+                <div class="confirmation-modal-content">
+                  <div class="confirmation-box-header">
+                    <h2 class="text-center mb-3" style="font-weight: bolder">
+                      Confirm user delete
+                    </h2>
+                  </div>
+                  <p style="font-size: 19px">
+                    Are you sure you want to delete this user
+                    <span
+                      id="test"
+                      style="font-weight: bolder; font-style: italic"
+                    ></span
+                    >?
+                  </p>
+                  <div class="warning-container d-flex mb-3">
+                    <div
+                      class="d-flex justify-content-center align-items-center"
+                    >
+                      <i class="fa-solid fa-triangle-exclamation me-3"></i>
+                    </div>
+                    <p class="mb-0" style="font-size: 18px">
+                      Once you deleted it, you can't be undone.
+                    </p>
+                  </div>
+
+                  <div class="button-container d-flex justify-content-between">
+                    <button
+                      type="button"
+                      id="cancelButtonModal"
+                      class="modal-button confirm"
+                    >
+                      No, Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      id="confirmUserCreation"
+                      class="modal-button cancel"
+                    >
+                      Yes, Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- The active confirmation modal -->
+              <div class="confirmation-modal" id="confirmationModalActive">
+                <div class="confirmation-modal-content">
+                  <div class="confirmation-box-header">
+                    <h2 class="text-center mb-3" style="font-weight: bolder">
+                      Confirm permission change
+                    </h2>
+                  </div>
+                  <p style="font-size: 19px">
+                    Are you sure you want to
+                    <span
+                      id="confirmationToggleText"
+                      style="font-weight: bolder; font-style: italic"
+                    ></span>
+                    this user
+                    <span
+                      class="username"
+                      style="font-weight: bolder; font-style: italic"
+                    ></span
+                    >?
+                  </p>
+                  <div class="warning-container d-flex mb-3">
+                    <div
+                      class="d-flex justify-content-center align-items-center"
+                    >
+                      <i class="fa-solid fa-triangle-exclamation me-3"></i>
+                    </div>
+                    <p class="mb-0" style="font-size: 18px">
+                      This user
+                      <span
+                        class="username"
+                        style="font-weight: bolder; font-style: italic"
+                      ></span>
+                      <span
+                        class="status-text"
+                        style="
+                          font-weight: bolder;
+                          font-style: italic;
+                          color: red;
+                        "
+                      ></span>
+                      able to access the account.
+                    </p>
+                  </div>
+
+                  <div class="button-container d-flex justify-content-between">
+                    <button
+                      type="button"
+                      id="cancelButtonModalActive"
+                      class="modal-button confirm"
+                    >
+                      No, Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      id="confirmClose"
+                      class="modal-button cancel"
+                    >
+                      Yes, Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+              <script src="/js/data-table-config.js"></script>
+              <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+              <script src="/js/navbar.js"></script>
+              <script th:src="@{/js/alertBox.js}"></script>
+
+		<script th:inline="javascript">
+			const success = /*[[${updateSuccess}]]*/ null;
+			const error = /*[[${updateError}]]*/ null;
+			const deleteSuccess = /*[[${deleteSuccess}]]*/ null;
+			const deleteFailed = /*[[${deleteFailed}]]*/ null;
+
+            console.log("success" + success);
+            console.log("error" + error);
+
+			if(success != null){
+				togglePopupSuccess("SUCCESS", success);
+			}
+			if(error != null){
+				togglePopupDanger("ERROR", error);
+			}
+			if(deleteSuccess != null){
+				togglePopupSuccess("SUCCESS", deleteSuccess);
+			}
+			if(deleteFailed != null){
+				togglePopupDanger("ERROR", deleteFailed);
+			}
+		</script>
+
+              <script>
+                var csrfToken = $("meta[name='_csrf']").attr("content");
+                var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+                var userStatuses = {};
+
+                // Function to open the confirmation modal
+                function openConfirmationModal(id, username) {
+                  $("#test").text(username);
+                  var deleteUrl = "/mng/users/delete/" + id; // Replace 'delete-ur' with your backend endpoint for deleting a user
+                  $("#confirmUserCreation").on("click", function () {
+                    window.location.href = deleteUrl;
+                    hideModal();
+                  });
+
+                  $("#confirmationModal").show(); // Show the modal box
+                }
+
+                // Function to hide the modal box
+                function hideModal() {
+                  $("#confirmationModal").fadeOut();
+                }
+
+                $(document).on("click", function (event) {
+                  var confirmationModal = $("#confirmationModal");
+                  if ($(event.target).is(confirmationModal)) {
+                    hideModal();
+                  }
+                });
+
+                // Function to handle the "No, Cancel" button click
+                $("#cancelButtonModal").on("click", function () {
+                  hideModal(); // Hide the modal box if the user clicks "No, Cancel"
+                });
+
+                function openActiveConfirmationModal(id, username) {
+                  var status = userStatuses[id]; // Get the status from the userStatuses object
+                  var toggleText = status ? "Disable" : "Enable";
+                  $("#confirmationToggleText").text(toggleText);
+                  $(".username").text(username); // Update the username inside the modal
+
+                  // Set the text of the .status-text span based on the status value
+                  var statusText = status ? "will not be" : "will be";
+                  $(".status-text").text(statusText);
+
+                  $("#confirmClose")
+                    .off("click")
+                    .on("click", function () {
+                      // Prepare form data with the id and status
+                      var formData = new FormData();
+                      formData.append("id", id);
+                      formData.append("status", status);
+
+                      // Make an Ajax POST request to your backend to change user permission
+                      $.ajax({
+                        url: "/mng/users/userPermissionChange", // Replace with your backend endpoint for enabling/disabling a user
+                        type: "POST", // Use POST for sending data to the server
+                        data: formData, // Send the form data containing the id and status
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Set the content type to false, so jQuery will not add a content type header
+                        // Set the CSRF token in the headers of the request
+                        beforeSend: function (xhr) {
+                          xhr.setRequestHeader(csrfHeader, csrfToken);
+                        },
+                        success: function (response) {
+                          console.log("Success:", response);
+                          hideModalActive();
+
+                          var newStatus = response.newStatus; // Assuming the AJAX response contains the updated status value
+                          var newBtnClass = newStatus
+                            ? "btn-success"
+                            : "btn-danger";
+                          var id = response.id; // Assuming the AJAX response contains the ID of the updated row
+
+                          // Find the button element by ID and update its class
+                          $("#statusButton_" + id)
+                            .removeClass("btn-success btn-danger")
+                            .addClass(newBtnClass);
+
+                          // Update the button text to reflect the new status
+                          var newStatusText = newStatus
+                            ? "<i class='fa-solid fa-lock-open'></i>" : "<i class='fa-solid fa-lock'></i>";
+                          $("#statusButton_" + id).html(newStatusText);
+
+                          // Update the status in the userStatuses object
+                          userStatuses[id] = newStatus;
+                        },
+                        error: function (error) {
+                          // Handle errors (if any)
+                          console.error("Error:", error);
+                        },
+                      });
+                    });
+
+                  $("#confirmationModalActive").show(); // Show the modal box
+                }
+
+                // Function to hide the modal box
+                function hideModalActive() {
+                  $("#confirmationModalActive").fadeOut();
+                }
+
+                $(document).on("click", function (event) {
+                  var confirmationModalActive = $("#confirmationModalActive");
+                  if ($(event.target).is(confirmationModalActive)) {
+                    hideModalActive();
+                  }
+                });
+
+                // Function to handle the "No, Cancel" button click
+                $("#cancelButtonModalActive").on("click", function () {
+                  hideModalActive(); // Hide the modal box if the user clicks "No, Cancel"
+                });
+
+                function redirectToEditPage(id) {
+                  // Use window.location.href to navigate to the edit endpoint with the row.id included
+
+                  window.location.href = "/mng/users/edit/" + id;
+                }
+
+                $(document).ready(function () {
+                  var token = $("meta[name='_csrf']").attr("content");
+                  var header = $("meta[name='_csrf_header']").attr("content");
+
+                  $(document).ajaxSend(function (e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                  });
+                  var table = $("#example").DataTable({
+                    search: { caseInsensitive: true },
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    responsive: true,
+                    lengthMenu: [5, 10, 20], // Number of records per page
+                    pageLength: 5, // Default number of records per page
+
+                    dom: "lrtip",
+                    ajax: {
+                      url: "/mng/users/showUsers", // Replace '/mng/users/showUsers' with your actual backend URL for fetching user data
+                      type: "POST",
+                      contentType: "application/json",
+                      data: function (d) {
+                        return JSON.stringify(d);
+                      },
+                    },
+                    columns: [
+                      {
+                        data: "id",
+                        name: "ID",
+                        className: "text-center",
+                        render: function (data, type, row, meta) {
+                          return meta.row + 1;
+                        },
+                      },
+                      { data: "name", name: "Name", className: "text-center" },
+                      {
+                        data: "username",
+                        name: "Username",
+                        className: "text-center",
+                      },
+                      {
+                        data: "email",
+                        name: "Email",
+                        className: "text-center",
+                      },
+                      {
+                        data: "role.name",
+                        name: "Role",
+                        className: "text-center",
+                        render: function (data, type, row) {
+                          // Remove "ROLE" and replace "_" with a space
+                          var roleName = data
+                            .replace("ROLE", "")
+                            .replace(/_/g, " ");
+                          return "<span>" + roleName + "</span>";
+                        },
+                      },
+                      {
+                        data: "enabled",
+                        name: "Status",
+                        className: "text-center",
+                        render: function (data, type, row) {
+                          var status = data ? "<i class='fa-solid fa-lock-open'></i>" : "<i class='fa-solid fa-lock'></i>";
+                          var btnClass = data ? "btn-success" : "btn-danger";
+                          var toggleText = data ? "<i class='fa-solid fa-lock-open'></i>" : "<i class='fa-solid fa-lock'></i>";
+                          var id = row.id;
+                          var username = row.username;
+
+						  // Check if role.name is equal to "ROLE_ADMIN"
+						  if (row.role.name === "ROLE_ADMIN") {
+            // Return an empty string to hide the button
+            return '';
+        }
+
+                          // Add the status to the userStatuses object
+                          userStatuses[id] = data;
+
+                          // Return the button with onclick function and an id attribute
+                          return (
+                            '<button id="statusButton_' +
+                            id +
+                            '" class="btn ' +
+                            btnClass +
+                            '" onclick="openActiveConfirmationModal(\'' +
+                            id +
+                            "', '" +
+                            username +
+                            "');\">" +
+                            status +
+                            "</button>"
+                          );
+                        },
+                      },
+
+                      // { data: "activity", className: "text-center" }, // Uncomment this line if you have an "activity" property in the User entity
+                      {
+                        data: "role.name",
+                        name: "Action",
+                        className: "text-center",
+                        render: function (data, type, row) {
+                          if (data === "ROLE_ADMIN") {
+                            return (
+                              '<button class="btn btn-light" onclick="redirectToEditPage(\'' +
+                              row.id +
+                              '\');"><i class="fa-solid fa-pen-to-square"></i></button>' 
+                              
+                            );
+                          } else {
+                            return (
+                              '<button class="btn btn-light" onclick="redirectToEditPage(\'' +
+                              row.id +
+                              '\');"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                              '<button class="btn btn-light" onclick="openConfirmationModal(\'' +
+                              row.id +
+                              "','" +
+                              row.username +
+                              "');\">" +
+                              '<i class="fa-solid fa-trash-can" style="color: red"></i></button>'
+                            );
+                          }
+                        },
+                      },
+                    ],
+                  });
+
+                  // Function to handle filter changes and trigger table refresh
+                  function applyFilters() {
+                    var roleFilter = $("#role").val();
+                    var statusFilter = $("#status").val();
+                    var table = $("#example").DataTable();
+
+                    table.column(4).search(roleFilter).draw(); // Column 4 is for "Role" filter
+                    table.column(5).search(statusFilter).draw(); // Column 5 is for "Status" filter
+                  }
+
+                  // Event handler for role filter change
+                  $("#role").on("change", function () {
+                    applyFilters();
+                  });
+
+                  // Event handler for status filter change
+                  $("#status").on("change", function () {
+                    applyFilters();
+                  });
+
+                  // Function to handle the search input
+                  $("#searchInput").on("keyup", function () {
+                    var searchText = $(this).val().toLowerCase();
+                    table.search(searchText).draw();
+                  });
+
+				  $("#clear-filter").on("click", function () {
+        clearFiltersAndRedraw();
+    });
+
+	function clearFiltersAndRedraw() {
+    $("#role").val("");     
+    $("#status").val("");   
+    $("#searchInput").val(""); 
+
+    // applyFilters(); 
+    var table = $("#example").DataTable();
+    table.search('');
+    table.columns().search('').draw();
+}
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+      integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+      crossorigin="anonymous"
+    ></script>
+    <script th:src="@{/js/main.js}"></script>
+    <!-- SockJS, STOMP, and Notification JS  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+    <script th:src="@{/js/websocket-listener.js}"></script>
+    <script th:src="@{/js/notification.js}"></script>
+  </body>
+</html>

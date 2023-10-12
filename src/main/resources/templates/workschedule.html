@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta th:name="_csrf" th:content="${_csrf.token}" />
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <title>Work Schedule</title>
+  <link rel="stylesheet" href="/css/workschedule.css">
+  <link rel="stylesheet" href="/css/popup.css">
+  <link rel="stylesheet" th:href="@{/css/errorpopup.css}">
+  <!--AlertBox-->
+  <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<style>
+  .main-content {
+    background-color: #ddd;
+    min-height: 600px;
+
+  }
+</style>
+
+<body id="body-pd">
+  <div class="container-fluid">
+
+    <div class="row">
+      <!-- Sidebar -->
+      <div th:replace="custom_fragments :: sidebar"></div>
+      <div class="col p-0">
+        <div class="fluid-container">
+          <!-- Main Header -->
+          <div th:replace="custom_fragments :: main-header"></div>
+          <!-- Main Content -->
+
+          <!-- this is alert box-->
+          <div th:replace="jobDetail_Interview :: alertBox"></div>
+
+
+          <div class="col main-content">
+            <div class="container mt-4">
+              <div class="row ">
+                <div class="col-4 me-3 left-content">
+                  <form th:action="@{/mng/work-schedules}" method="post" th:object="${workScheduleDto}"
+                    id="workScheduleAdd">
+                    <div class="container mt-4 text-center">
+                      <h3>Work Schedule</h3>
+                    </div>
+
+                    <div class="input-group mb-3">
+                      <div class="label me-3">
+                        <label for="time1">Hour</label>
+                      </div>
+                      <input type="time" class="form-control" id="time1" name="time1" th:field="*{Time1}" />
+                      <span class="input-group-text">To</span>
+                      <input type="time" class="form-control" id="time2" name="time2" th:field="*{Time2}" />
+                    </div>
+                    <div class="error-message" id="time1ErrorMessage"></div>
+
+
+                    <div class="input-group mb-3">
+                      <div class="label me-3">
+                        <label for="start-day">Day&nbsp;</label>
+                      </div>
+                      <select id="start-day" class="form-control" name="start-day" th:field="*{startDay}">
+                        <option th:each="day : ${daysOfWeek}" th:value="${day}" th:text="${day}"></option>
+                      </select>
+                      <span class="input-group-text">To</span>
+                      <select id="end-day" class="form-control" name="end-day" th:field="*{endDay}">
+                        <option th:each="day : ${daysOfWeek}" th:value="${day}" th:text="${day}"></option>
+                      </select>
+                    </div>
+                    <div class="error-message" id="dayErrorMessage"></div>
+
+                    <div class="create d-flex justify-content-center">
+                      <input class="btn btn-primary" type="submit" value="Create">
+                    </div>
+                  </form>
+                </div>
+
+
+                <div class="col-7  right-content">
+                  <table class="table">
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Hour</th>
+                      <th scope="col">Day</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                    <tr th:each="workSchedule : ${workSchedules}">
+                      <td th:text="${workSchedule.id}"></td>
+                      <td th:text="${workSchedule.hour}"></td>
+                      <td th:text="${workSchedule.day}"></td>
+                      <td class="text-end">
+                        <i class="fa-solid fa-pen-to-square text-secondary edit-work-schedule-btn"
+                          th:data-id="${workSchedule.id}" data-start-time="${workSchedule.startTime}"
+                          data-end-time="${workSchedule.endTime}" data-start-day="${workSchedule.startDay}"
+                          data-end-day="${workSchedule.endDay}" data-bs-toggle="modal"
+                          data-bs-target="#edit-work-schedule-modal">
+                        </i>
+                        <i class="fa-solid fa-trash ms-3 type-delete-btn d-none" data-bs-toggle="modal"
+                          th:data-id="${workSchedule.id}" data-bs-target="#delete-workSchedule-modal"></i>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="delete-workSchedule-modal">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 class="text-danger">Confirm Delete</h3>
+                  <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" th:action="@{/mng/delete-work-schedule}">
+                  <input type="hidden" name="id" id="workScheduleId">
+                  <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                  <div class="modal-body">
+                    <p class="fs-5" id="questionBox"></p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+
+          <div class="modal fade" id="edit-work-schedule-modal" tabindex="-1" role="dialog"
+            aria-labelledby="edit-work-schedule-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="edit-work-schedule-modal-label">Edit Work Schedule</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <!-- Add the form to update the WorkSchedule -->
+                  <form th:action="@{/mng/update}" method="post" th:object="${workScheduleDto}"
+                    id="edit-work-schedule-form">
+                    <input type="hidden" id="edit-work-schedule-id" name="id" th:field="*{id}" />
+
+                    <div class="input-group mb-3">
+                      <div class="label me-3">
+                        <label for="edit-time1">Hour</label>
+                      </div>
+                      <input type="time" class="form-control" id="edit-time1" name="time1" th:field="*{Time1}" />
+                      <span class="input-group-text">To</span>
+                      <input type="time" class="form-control" id="edit-time2" name="time2" th:field="*{Time2}" />
+                    </div>
+
+                    <div class="error-message" id="timeErrorMessage"></div>
+
+                    <div class="input-group mb-3">
+                      <div class="label me-3">
+                        <label for="edit-start-day">Day&nbsp;</label>
+                      </div>
+                      <select id="edit-start-day" class="form-control" name="start-day" th:field="*{startDay}">
+                        <option th:each="day : ${daysOfWeek}" th:value="${day}" th:text="${day}"></option>
+                      </select>
+                      <span class="input-group-text">To</span>
+                      <select id="edit-end-day" class="form-control" name="end-day" th:field="*{endDay}">
+                        <option th:each="day : ${daysOfWeek}" th:value="${day}" th:text="${day}"></option>
+                      </select>
+                    </div>
+                    <div class="error-message" id="day1ErrorMessage"></div>
+
+                    <div class="d-flex justify-content-center">
+                      <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Bootstrap JS (place it at the end of the body) -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <!--AlertBox-->
+  <script th:src="@{/js/alertBox.js}"></script>
+  <script th:src="@{/js/main.js}"></script>
+
+  <!-- SockJS, STOMP, and Notification JS  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-pnt/1.6.1/sockjs.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+  <script th:src="@{/js/websocket-listener.js}"></script>
+  <script th:src="@{/js/notification.js}"></script>
+
+  <script th:inline="javascript">
+
+    const workScheduleCreateSuccess =/*[[${workScheduleCreateSuccess}]]*/ null;
+    const workScheduleUpdateSuccess =/*[[${workScheduleUpdateSuccess}]]*/ null;
+    const workScheduleDeleteSuccess =/*[[${workScheduleDeleteSuccess}]]*/ null;
+
+    console.log('Delete '+ workScheduleDeleteSuccess);
+
+    //show alert box when mail exception have
+    if (workScheduleCreateSuccess != null) {
+      togglePopupSuccess("Success", workScheduleCreateSuccess);
+    }
+    if (workScheduleUpdateSuccess != null) {
+      togglePopupSuccess("Success", workScheduleUpdateSuccess);
+    }
+    if (workScheduleDeleteSuccess != null) {
+      togglePopupSuccess("Success", workScheduleDeleteSuccess);
+    }
+  </script>
+  <script>
+    $(document).ready(function () {
+      const token = $("meta[name='_csrf']").attr("content");
+      const header = $("meta[name='_csrf_header']").attr("content");
+
+      document.querySelectorAll(".edit-work-schedule-btn").forEach(el => {
+        el.addEventListener("click", (e) => {
+          fetchWorkScheduleData(e.target.dataset.id);
+        })
+      })
+
+      // Function to open the modal and populate data
+      function openEditModal(workSchedule) {
+        console.log("Edit modal " + workSchedule);
+        $("#edit-work-schedule-id").val(workSchedule.id);
+        $("#edit-time1").val(workSchedule.time1);
+        $("#edit-time2").val(workSchedule.time2);
+        $("#edit-start-day").val(workSchedule.startDay);
+        $("#edit-end-day").val(workSchedule.endDay);
+        $("#edit-work-schedule-modal").modal("show");
+      }
+
+      function fetchWorkScheduleData(workScheduleId) {
+        $.ajax({
+          url: "/mng/update/" + workScheduleId, // Replace with your actual endpoint URL
+          method: "GET",
+          dataType: "json", // Expected response type
+          success: function (data) {
+            console.log("Edit modal " + data);
+            $("#edit-work-schedule-id").val(data.id);
+            console.log(data.time1)
+            console.log(data.time2)
+            $("#edit-time1").val(data.time1);
+            $("#edit-time2").val(data.time2);
+            $("#edit-start-day").val(data.startDay);
+            $("#edit-end-day").val(data.endDay);
+            $("#edit-work-schedule-modal").modal("show");
+            // Assuming you have an openEditModal function to populate the modal
+          },
+          error: function (error) {
+            console.error("Error fetching work schedule data:", error);
+          }
+        });
+      }
+
+      // Handle form submission with AJAX
+
+    });
+    $(document).ready(function () {
+      $("#workScheduleAdd").submit(function (event) {
+        var startTime = $("#time1").val().trim();
+        var endTime = $("#time2").val().trim();
+        var startDay = $("#start-day").val();
+        var endDay = $("#end-day").val();
+
+
+        if (startTime === "" || endTime === "") {
+          if (startTime === "") {
+            $("#time1ErrorMessage").text("Time cannot be empty.");
+            $("#time1ErrorMessage").show();
+          } else {
+            $("#time1ErrorMessage").hide();
+          }
+
+          if (endTime === "") {
+            $("#time1ErrorMessage").text("Time cannot be empty.");
+            $("#time1ErrorMessage").show();
+          } else {
+            $("#time1ErrorMessage").hide();
+          }
+
+          setTimeout(function () {
+            $("#time1ErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        } else if (startTime === endTime) {
+          $("#time1ErrorMessage").text("Start and end times cannot be the same.");
+          $("#time1ErrorMessage").show();
+          $("#time1ErrorMessage").text("Start and end times cannot be the same.");
+          $("#time1ErrorMessage").show();
+
+          setTimeout(function () {
+            $("#time1ErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        }
+        if (startDay === endDay) {
+          $("#dayErrorMessage").text("Start and end days cannot be the same.");
+          $("#dayErrorMessage").show();
+
+          setTimeout(function () {
+            $("#dayErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        }
+      });
+
+      // Clear error messages when input changes
+      $("#time1, #time2").on("input", function () {
+        $("#time1ErrorMessage").hide().text("");
+      });
+    });
+
+    $(document).ready(function () {
+      $("#edit-work-schedule-form").submit(function (event) {
+        var startTime = $("#edit-time1").val().trim();
+        var endTime = $("#edit-time2").val().trim();
+        var startDay = $("#edit-start-day").val();
+        var endDay = $("#edit-end-day").val();
+
+
+        if (startTime === "" || endTime === "") {
+          if (startTime === "") {
+            $("#timeErrorMessage").text("Time cannot be empty.");
+            $("#timeErrorMessage").show();
+          } else {
+            $("#timeErrorMessage").hide();
+          }
+
+          if (endTime === "") {
+            $("#timeErrorMessage").text("Time cannot be empty.");
+            $("#timeErrorMessage").show();
+          } else {
+            $("#timeErrorMessage").hide();
+          }
+
+          setTimeout(function () {
+            $("#timeErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        } else if (startTime === endTime) {
+          $("#timeErrorMessage").text("Start and end times cannot be the same.");
+          $("#timeErrorMessage").show();
+          $("#timeErrorMessage").text("Start and end times cannot be the same.");
+          $("#timeErrorMessage").show();
+
+          setTimeout(function () {
+            $("#time1ErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        }
+        if (startDay === endDay) {
+          $("#day1ErrorMessage").text("Start and end days cannot be the same.");
+          $("#day1ErrorMessage").show();
+
+          setTimeout(function () {
+            $("#day1ErrorMessage").hide().text("");
+          }, 3000);
+
+          event.preventDefault();
+        }
+      });
+
+      // Clear error messages when input changes
+      $("#time1, #time2").on("input", function () {
+        $("#timeErrorMessage").hide().text("");
+      });
+    });
+
+
+
+
+
+
+  </script>
+
+
+  <script>
+
+    document.querySelectorAll(".type-delete-btn").forEach(el => {
+      el.onclick = (e) => {
+        questionBox.innerText = 'Are you sure to delete  This workschedule ?';
+        console.log(e.target.dataset.id)
+        document.getElementById('workScheduleId').value = e.target.dataset.id;
+      }
+    })
+
+
+
+
+
+  </script>
+</body>
+
+</html>

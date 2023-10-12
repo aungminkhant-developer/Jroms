@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta th:name="_csrf" th:content="${_csrf.token}" />
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>jobDetail Candidate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+  <!-- Date Picker CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" th:href="@{/css/date-range-filter.css}">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/interview.css}">
+  <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+  <link rel="stylesheet" href="/css/popUp.css">
+  <link rel="stylesheet" href="/css/interviewCreate.css">
+  <link rel="stylesheet" href="/css/loading_mail.css">
+
+</head>
+
+<body>
+  <div class="container-fluid">
+
+    <div class="row">
+      <!-- Sidebar -->
+      <div th:replace="custom_fragments :: sidebar"></div>
+      <div class="col p-0">
+        <div class="fluid-container">
+          <!-- Main Header -->
+          <div th:replace="custom_fragments :: main-header"></div>
+          <!-- Main Content -->
+          <div class="main-content"><!-- Write your code or content here -->
+
+            <div class="row mt-5 ms-3">
+              <div class="col">
+                <div class="btn-group">
+                  <a class="btn btn-secondary" href="/mng/candidate/download-all">Download-All CVs</a>
+                  <a class="btn btn-primary" onclick="downloadFilteredCvs()">Download Filtered CVs</a>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-5 ms-3 mb-3">
+              <div class="col-md-2 me-4">
+                <div class="row">
+                  <label class="col col-auto col-form-label" for="job-offer">Job Offer:</label>
+                  <select class="col form-select" name="job-offer" id="job-offer">
+                    <option value="">ALL</option>
+                    <option value="0">Not Offered</option>
+                    <option value="1">Offered</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Job Accepted -->
+              <div class="col-md-3 me-4">
+                <div class="row">
+                  <label class="col col-auto col-form-label" for="job-accepted">Job Accepted:</label>
+                  <select class="col form-select" name="job-accepted" id="job-accepted">
+                    <option value="">ALL</option>
+                    <option value="0">Not Accepted</option>
+                    <option value="1">Accepted</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2 me-4">
+                <div class="row">
+                  <label class="col col-auto col-form-label" for="cv">Result:</label>
+                  <select class="col form-select" name="cv" id="cv">
+                    <option value="">ALL</option>
+                    <option th:value="0">Received</option>
+                    <option th:value="1">Viewed</option>
+                    <option th:value="2">Considering</option>
+
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="row d-flex justify-content-center">
+                  <label class="col col-auto col-form-label" for="date-range">Date Range:</label>
+                  <!-- Date Range Picker Start -->
+                  <div id="daterange" class="col col-auto col-form-label">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <input id="min-date" type="hidden" value="">
+                    <input id="max-date" type="hidden" value="">
+                    <span id="selected-daterange"></span>
+                    <i class="fa fa-caret-down"></i>
+                  </div>
+                  <!-- Date Range Picker End -->
+                </div>
+              </div>
+            </div>
+
+            <!-- this is alert box-->
+            <div th:replace="jobDetail_Interview :: alertBox"></div>
+
+            <!-- Confirm box modal for interview result -->
+            <div th:fragment="interviewResultConfirmBox">
+              <div class="modal fade" id="confirm-interview-result-modal">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3 class="text-danger">Confirm</h3>
+                      <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="fs-5">Are you sure for job offer mail?</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button onclick="togglePopupEmail()" class="btn btn-danger" data-bs-dismiss="modal">Ok</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!--modal box for mail alert when interview result in not passed-->
+            <div class="modal fade" id="check-interview-result-modal">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 class="text-danger">Warning !!</h3>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="fs-5">This Candidate's interview haven't passed yet !!</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- popup show for mail send -->
+            <div th:replace="candidates :: jobOfferMail"></div>
+
+            <!-- loading -->
+            <div class="loading-animation" id="loadingAnimation">
+              <div class="loader"></div>
+            </div>
+
+            <div class="d-none" id="jobDetailIdElement" th:text="${jobDetailId}"></div>
+            <table class="table table-bordered w-100" id="jobofferTable">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Apply Date</th>
+                  <th scope="col">Summary</th>
+                  <th scope="col">Download CV</th>
+                  <th scope="col">CV Status</th>
+                  <th scope="col">Interview</th>
+                  <th scope="col">JobOffer Status</th>
+                  <th scope="col">Job Offer</th>
+                  <th scope="col">Job Accepted</th>
+                </tr>
+              </thead>
+
+            </table>
+
+            <!-- Job accepted disabled modal -->
+                  
+            <div class="modal fade" id="job-accept-disabled-modal">
+              <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <div class="text-danger fs-3">Cannot change</div>
+                          <button class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="fs-5">Job offer mail has not been sent.</div>
+                      </div>
+                      <div class="modal-footer">
+                          <button class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+
+            <!-- Confirm job accepted modal -->
+                  
+              <div class="modal fade" id="change-job-accept-modal">
+                  <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <div class="text-primary fs-3">Confirm Change</div>
+                              <button class="btn-close" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body">
+                              <div class="fs-5">Are you sure to toggle the status of job acception?</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                              <button class="btn btn-primary" data-bs-dismiss="modal" onclick="changeJobAccepted()">Change</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="candidateModalLabel">Candidate Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="container-fluid">
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-address-card me-1"></i>Name:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-square-phone me-1"></i>Phone Number:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-square-envelope me-1"></i>Email:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-location-dot me-1"></i>Address:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-dollar-sign me-1"></i>Expected Salary:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-hourglass-half me-1"></i>Experience:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-user-graduate me-1"></i>Education:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-venus-mars me-1"></i>Sex:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-gears me-1"></i>Technical Skills:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-language me-1"></i>Language Skills:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-star me-1"></i>Main Skill:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-regular fa-calendar-days me-1"></i>Date of Birth:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-regular fa-id-badge me-1"></i>Applied Position:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+                      <div class="row ms-5">
+                        <div class="col-md-4">
+                          <p><strong><i class="fa-solid fa-layer-group me-1"></i>Level:</strong></p>
+                        </div>
+                        <div class="col ms-auto"><span></span></div>
+                      </div>
+
+
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                  <input type="hidden" name="" id="job-accept-id">
+                  
+                </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+  <script th:src="@{/js/main.js}"></script>
+
+  <!-- SockJS, STOMP, and Notification JS  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+  <script th:src="@{/js/websocket-listener.js}"></script>
+  <script th:src="@{/js/notification.js}"></script>
+
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+  <!-- Date Picker JS -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script th:src="@{/js/tinymce.min.js}"></script>
+  <!--AlertBox-->
+  <script th:src="@{/js/alertBox.js}"></script>
+  <script th:src="@{/script.js}"></script>
+
+  <script th:inline="javascript">
+    const mailException =/*[[${mailException}]]*/ null;
+    const mailSuccess =/*[[${mailSuccess}]]*/ null;
+
+    //show alert box when mail exception have
+    if (mailException != null) {
+      togglePopupDanger("Mail", mailException);
+    }
+    if (mailSuccess != null) {
+      togglePopupSuccess("Mail", mailSuccess);
+    }
+  </script>
+  <script th:src="@{js/candidateMail.js}"></script>
+  <script>
+    const token = $("meta[name='_csrf']").attr("content");
+    const header = $("meta[name='_csrf_header']").attr("content");
+    // Job accepted button listeners
+    function changeJobAccepted() {
+          const candId = document.getElementById("job-accept-id").value;
+          fetch('/mng/candidate/change-job-accepted-status/' + candId, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                [header]: token,
+                'X-XSRF-Token': token
+              }
+            }).then(resp => {
+              if(resp.status == 200) {
+                togglePopupSuccess("Success", "Job accepted status is changed successfully.")
+                const jobAcceptBtn = $(`#${candId}.job-accept-btn`);
+                jobAcceptBtn.toggleClass("fa-square-check");
+                jobAcceptBtn.toggleClass("text-success");
+                jobAcceptBtn.toggleClass("fa-square-xmark");
+                jobAcceptBtn.toggleClass("text-danger");
+              } else {
+                togglePopupDanger("Failed", "Failed to change the job accepted status.")
+              }
+            })
+        }
+
+
+    //for mail popUp
+    function togglePopupEmail() {
+      popupDivEmail.classList.toggle("show");
+
+    }
+    function isAuthorizedInterviewer(user) {
+            const userRole = document.getElementById("user-role");
+            const username = userRole.dataset.username;
+            const role = userRole.innerText;
+            const isInterviewer = role.includes("DEPARTMENT_HEAD") || role.includes("TEAM_LEADER");
+
+            return isInterviewer && username == user;
+        }
+
+        function isUserAuthorized(user) {
+            const userRole = document.getElementById("user-role");
+            const username = userRole.dataset.username;
+            const role = userRole.innerText;
+            const isInterviewer = role.includes("DEPARTMENT_HEAD") || role.includes("TEAM_LEADER");
+
+            return !isInterviewer || username == user;
+        }
+
+        function isAnAdmin() {
+            const userRole = document.getElementById("user-role");
+            const role = userRole.innerText;
+            return role.includes("ADMIN");
+        }
+
+        function isJuniorHR() {
+            const userRole = document.getElementById("user-role");
+            const role = userRole.innerText;
+            return role.includes("HR_JUNIOR");
+        }
+    var subject = document.getElementById('subject');
+    var sendMailCandidateId = document.getElementById('sendMailCandidateId');
+    var pageRedirect = document.getElementById('pageRedirect');
+    var messageError = document.getElementById('emailMessageError');
+    var checkInterviewResultModal = new bootstrap.Modal(document.getElementById("check-interview-result-modal"));
+    var confirmInterviewResultModal = new bootstrap.Modal(document.getElementById("confirm-interview-result-modal"));
+    //function for prevent space input
+    function preventSpace(event) {
+      const inputElement = event.target;
+      const value = inputElement.value;
+      const firstChar = value.charAt(0);
+
+      if (event.keyCode === 32 && firstChar === '') {
+        event.preventDefault();
+      }
+    }
+
+    //function for remove space
+    function removeLeadingSpace(event) {
+      const inputElement = event.target;
+      const value = inputElement.value;
+      const newValue = value.replace(/^\s+/, ""); // Remove leading spaces
+      inputElement.value = newValue;
+    }
+
+
+
+    function closePopUpEmail() {
+      var editor = tinymce.get('interviewMail');
+      subject.value = null;
+      toEmail.value = null;
+      editor.setContent('');
+      fileInput.value = '';
+      fileCountLabel.innerHTML = '';
+      popupDivEmail.classList.toggle("show");
+    }
+
+    //for reshow error when send mail
+    var setErrorMail = (element, message) => {
+      element.innerHTML = message;
+      setTimeout(() => {
+        element.innerHTML = '';
+      }, 4000);
+    }
+
+    function validateFromMail() {
+      if (fromEmail.value.length == 0) {
+        setErrorMail(fromMailError, 'Mail is required !!');
+        return false;
+      }
+      return true;
+
+    }
+
+    function validateToMail() {
+      if (toEmail.value.length == 0) {
+        setErrorMail(toMailError, 'Candidate mail is requierd !!')
+        return false;
+      }
+      return true;
+    }
+
+    function validateSubject() {
+      if (subject.value === null || subject.value === '') {
+        setErrorMail(subjectError, 'Email subject name is required !!')
+        return false;
+      }
+      if (subject.value.length > 200) {
+        setErrorMail(subjectError, 'Email subject name must be within 200 characters !!');
+        return false;
+      }
+      return true;
+    }
+
+    //validation function for interview send mail
+    function validateSendInterviewMail() {
+      if (!validateFromMail() || !validateToMail()) {
+        return false;
+      }
+      if (!fromEmail.value.match(/^[A-Za-z]*[0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+        setErrorMail(fromMailError, 'Invalid Email !!')
+        return false;
+      }
+      if (!toEmail.value.match(/^[A-Za-z]*[0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+        setErrorMail(toMailError, 'Invalid Email !!')
+        return false;
+      }
+      if (!validateSubject()) {
+        return false;
+      }
+      var editor = tinymce.get('interviewMail');
+      var parser = new DOMParser();
+      var htmlDoc = parser.parseFromString(editor.getContent(), "text/html");
+      var textContent1 = htmlDoc.body.textContent;
+      if (textContent1 === '' || textContent1.trim() === '') {
+        console.log('hihihhih')
+        setErrorMail(messageError, 'Please insert email message !!')
+        return false;
+      }
+      if (fileInput.value.length < 1) {
+        attachments.value = 'Null';
+      }
+      else {
+        attachments.value = 'NotNull';
+      }
+      var files = fileInput.files;
+      for (var i = 0; i < files.length; i++) {
+        var fileSize = Math.round(files[i].size / 1024);
+        if (fileSize > 1024 * 10) {
+          // alert('File ' + files[i].name + ' is greater than 2MB');
+          setErrorMail(attachmentFileError, 'File ' + files[i].name + ' is greater than 10MB')
+          return false;
+        }
+      }
+      $("#loadingAnimation").css("display", "flex");
+      return true;
+    }
+
+    //to show attachment file count
+    document.addEventListener("DOMContentLoaded", function () {
+      var fileInput = document.getElementById("fileInput");
+      var fileCountLabel = document.getElementById("fileCountLabel");
+
+      fileInput.addEventListener("change", function () {
+        var selectedFiles = fileInput.files;
+        fileCountLabel.textContent = selectedFiles.length + " files selected";
+      });
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+
+      const token = $("meta[name='_csrf']").attr("content");
+      const header = $("meta[name='_csrf_header']").attr("content");
+      const dateColumnIndex = 2;
+      $(document).ajaxSend(function (e, xhr, options) {
+        xhr.setRequestHeader(header, token);
+      });
+      const jobDetailId = document.getElementById("jobDetailIdElement").innerHTML;
+      // Initialize the DataTable on the table with id 'dataTable'
+      const table = $('table#jobofferTable').DataTable({
+        ajax: {
+          contentType: 'application/json',
+          url: '/mng/rest/candidate?jobdetail-id=' + jobDetailId,
+          type: 'POST',
+          data: function (d) {
+            return JSON.stringify(d);
+          },
+        },
+        language: {
+          "infoFiltered": "",
+          searchPlaceholder: "Search query"
+        },
+        stateSave: true,
+        serverSide: true,
+
+        columns: [
+          {
+            data: 'id',
+            render: function (data, type, row, meta) {
+              return meta.row + meta.settings._iDisplayStart + 1;
+            }
+          },
+          { data: "name", orderable: true },
+          {
+            data: "createdDate", name: "Application Date", className: "text-center",
+            render: function (data, type, row) {
+              let date = new Date(data);
+              let day = date.getDate();
+              let month = date.getMonth() + 1;
+              let year = date.getFullYear();
+
+              if (day < 10) day = '0' + day;
+              if (month < 10) month = '0' + month;
+
+              let formattedDate = day + '-' + month + '-' + year;
+              return formattedDate;
+            },
+            searchable: false
+          },
+          {
+            data: 'id',
+            render: function (data, type, row) {
+              return '<button class="btn btn-success view-summary-button">View Summary</button>' +
+                '<input type="hidden" value="' + data + '" class="viewSummaryId">';
+            }
+          },
+          {
+            data: 'curriculumVitae.id',
+            render: function (data, type, row) {
+              return '<a href="/mng/candidate/download-cv/' + data + '?errorpage=job_offer_candidate" class="btn btn-dark">Download CV</a>';
+            }
+          },
+          {
+            data: "curriculumVitae.status",
+            render: function (data, type, row) {
+              var candidateId = row.curriculumVitae.id;
+              var finalResult = row.finalResult;
+              const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+              let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+              isAuthorized = isAuthorized && !isJuniorHR();
+              if(isAuthorized && finalResult==='NOT_REACHED') {
+                return ' <td >' +
+                '<input type="hidden" class="resultValue" value="' + candidateId + '">' +
+
+                '<select style="color:#696969;" id="mySelect" data-show-content="true" class="form-select fa"' +
+                'aria-label="Default select example"' +
+                '><option value="RECEIVED"' + (data === 'RECEIVED' ? ' selected' : '') + '><span' +
+                '>' + (data === 'RECEIVED' ? '&#xf058;' : '') + '</span>' +
+                ' Received</option>' +
+                '<option value="VIEWED"' + (data === 'VIEWED' ? ' selected' : '') + '><span' +
+                '>' + (data === 'VIEWED' ? '&#xf058;' : '') + '</span>' +
+                'Viewed</option>' +
+                '<option value="CONSIDERING"' + (data === 'CONSIDERING' ? ' selected' : '') + '><span' +
+                '>' + (data === 'CONSIDERING' ? '&#xf058;' : '') + '</span>' +
+                'Considering</option>' +
+                '</select>' +
+                '</td>';
+              } else {
+                return ' <td >' +
+                '<input type="hidden" class="resultValue" value="' + candidateId + '">' +
+                '<p style="text-align:center;margin-top:15px" >' + data + '</p></td>';
+
+              }
+              
+            },
+            createdCell: function (td, cellData, rowData, row, col) {
+              $(td).attr('id', 'resultSelect');
+              $(td).attr('style', 'width:400px')
+            }
+          },
+          {
+            data: 'id',
+            render: function (data, type, row) {
+              const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+              let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+              isAuthorized = isAuthorized && !isJuniorHR();
+              if(isAuthorized) {
+                return '<a class="btn btn-secondary" href="/mng/interview/candidateInterview?candidateId=' + data + '">See More</a>';
+              } else {
+                return '<a style="pointer-events: none;" class="btn btn-secondary">See More</a>';
+              }               
+            }
+          },
+          {
+            data: "jobOfferMailSent", name: "Job Offer Status", className: "text-center align-middle",
+            render: function (data, type, row) {
+              let status = data ? "Offered" : "Not Offered";
+              return status;
+            }
+          },
+          {
+            data: "id", name: "Job Offer", className: "text-center align-middle", orderable: false,
+            render: function (data, type, row) {
+              var mailStatus = row.jobOfferMailSent;
+              var result = row.finalResult;
+              var candidateEmail = row.email;
+              var name = row.name;
+              var candidateId = row.id;
+              var jobPosition=row.jobDetail.jobTitle.name + (row.jobDetail.jobLevel != null ? '(' + row.jobDetail.jobLevel.name + ')' : '');
+              const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+              let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+              isAuthorized = isAuthorized && !isJuniorHR();
+              if(isAuthorized) {
+                return '<a type="button" class="btn btn-outline-primary send-btn " data-candidatename="' + name + '" ' +
+                  ' data-candidateid="' + candidateId + '" data-email="' + candidateEmail + '"' +
+                  'data-mailstatus="' + mailStatus + '" data-result="' + result + '" data-jobposition="'+jobPosition+'"' +
+                  ' id="sendEamilBtn"  role="button">' +
+                  '<i class="fa-solid fa-paper-plane"></i></a>' +
+                  '<span class="position-absolute translate-middle p-1 ' +
+                  (mailStatus === false ? 'text-danger fa-solid fa-circle-info' : 'text-success fa-solid fa-circle-check') + '">' +
+                  '<span class="visually-hidden">New alerts</span>' +
+                  '</span>';
+              } else {
+                return '<a type="button" style="pointer-events: none;" class="btn btn-outline-primary" data-candidatename="' + name + '" ' +
+                                    ' data-candidateid="' + candidateId + '" data-email="' + candidateEmail + '"' +
+                                    'data-mailstatus="' + mailStatus + '" data-result="'+result+'" data-jobposition="'+jobPosition+'"' +
+                                    ' role="button">' +
+                                    '<i class="fa-solid fa-paper-plane"></i></a>' +
+                                    '<span class="position-absolute translate-middle p-1 ' +
+                                    (mailStatus === false ? 'text-danger fa-solid fa-circle-info' : 'text-success fa-solid fa-circle-check') + '">' +
+                                    '<span class="visually-hidden">New alerts</span>' +
+                                    '</span>';
+              }
+            }
+          },
+          {
+            data: "jobAccepted",
+            name: "Job Accepted",
+            className: "text-center align-middle",
+            render: function (data, type, row) {
+              const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+              let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+              isAuthorized = isAuthorized && !isJuniorHR();
+              if(isAuthorized) {
+                return data ? `<i data-mail=${row.jobOfferMailSent} id="${row.id}" class="pointer fa-solid fa-square-check fa-2xl text-success job-accept-btn"></i>` : `<i data-mail=${row.jobOfferMailSent} id="${row.id}" class="pointer fa-solid fa-square-xmark fa-2xl text-danger job-accept-btn"></i>`;
+              } else {
+                return data ? '<i class="fa-solid fa-square-check fa-2xl text-success"></i>' : '<i class="fa-solid fa-square-xmark fa-2xl text-danger"></i>';
+              }                 
+            },
+            createdCell: function (td, cellData, rowData, row, col) {
+              $(td).attr('style', 'width:5%')
+            }
+          },
+        ]
+
+      });
+      table.column(dateColumnIndex).search(null).draw();
+
+      // Initialize date range picker
+      var start = null;
+      var end = null;
+
+      $("#daterange span").html("Select your date range")
+
+      function cb(start, end) {
+        $("#min-date").val(start.format('YYYY-MM-DD'));
+        $("#max-date").val(end.format('YYYY-MM-DD'));
+        $('#daterange span').html(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+        table.column(dateColumnIndex).search(start.format('YYYY-MM-DD') + ";" + end.format('YYYY-MM-DD')).draw();
+      }
+
+      $('#daterange').daterangepicker({
+        "showDropdowns": true,
+        locale: {
+          cancelLabel: 'Clear'
+        },
+        ranges: {
+          'Today': [
+            moment(), moment()
+          ],
+          'Yesterday': [
+            moment().subtract(1, 'days'),
+            moment().subtract(1, 'days')
+          ],
+          'Last 7 Days': [
+            moment().subtract(6, 'days'),
+            moment()
+          ],
+          'Last 30 Days': [
+            moment().subtract(29, 'days'),
+            moment()
+          ],
+          'This Month': [
+            moment().startOf('month'), moment().endOf('month')
+          ],
+          'Last Month': [
+            moment().subtract(1, 'month').startOf('month'),
+            moment().subtract(1, 'month').endOf('month')
+          ]
+        },
+        "alwaysShowCalendars": true
+      }, cb);
+
+      // return all rows when date range gets cleared
+      $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+        $("#daterange span").html("Select your date range");
+        table.column(dateColumnIndex).search(null).draw();
+      });
+
+      table.on('draw', function () {
+        document.querySelectorAll(".view-summary-button").forEach(el => {
+          el.addEventListener("click", function (e) {
+            var candidateId = $(this).next('.viewSummaryId').val();
+
+            // Perform an AJAX fetch request to get candidate details
+            $.ajax({
+              url: '/candidate/' + candidateId,
+              type: 'GET',
+              success: function (candidate) {
+                // Populate the modal with candidate details
+                $('#candidateModal span').eq(0).text(candidate.name);
+                $('#candidateModal span').eq(1).text(candidate.phone_number);
+                $('#candidateModal span').eq(2).text(candidate.email);
+                $('#candidateModal span').eq(3).text(candidate.address);
+                $('#candidateModal span').eq(4).text(candidate.expected_salary + " MMK");
+                $('#candidateModal span').eq(5).text(candidate.experience);
+                $('#candidateModal span').eq(6).text(candidate.education);
+                $('#candidateModal span').eq(7).text(candidate.sex == 'M' ? 'Male' : 'Female');
+                $('#candidateModal span').eq(8).text(candidate.technical_skills);
+                $('#candidateModal span').eq(9).text(candidate.language_skills);
+                $('#candidateModal span').eq(10).text(candidate.main_skill);
+                $('#candidateModal span').eq(11).text(candidate.dob.substring(0, 10));
+                $('#candidateModal span').eq(12).text(candidate.appliedPosition);
+                $('#candidateModal span').eq(13).text(candidate.level);
+
+
+
+
+
+                // Show the modal
+                $('#candidateModal').modal('show');
+              },
+              error: function () {
+                console.error('Error fetching candidate details.');
+              }
+            });
+          })
+        })
+        //for check interview result in database by fetch when select 
+        document.querySelectorAll('[id^="resultSelect"]').forEach(element => {
+          element.lastElementChild.addEventListener('change', function () {
+            var candidateId = element.firstElementChild.value;
+            var cVStatus = element.lastElementChild.value;
+
+            var selectBox = element.lastElementChild;
+            var selectedOption = selectBox.options[selectBox.selectedIndex];
+            var selectedOptionText = selectedOption.textContent;
+            var icon = '&#xf058;';
+
+            // Add the icon to the selected option
+            selectedOption.innerHTML = icon + " " + selectedOptionText;
+
+            // Remove the icon from the other options or not selected option
+            for (var i = 0; i < selectBox.options.length; i++) {
+              if (i !== selectBox.selectedIndex) {
+                var option = selectBox.options[i];
+                var icon = '&#xf058;'; // The icon you want to remove (replace this with the actual icon)
+                switch (i) {
+                  case 0: option.innerHTML = 'Received'; break;
+                  case 1: option.innerHTML = 'Viewed'; break;
+                  case 2: option.innerHTML = 'Considering'; break;
+
+                }
+              };
+            };
+
+            //to get index of selected element
+            var indexOfSelectElement = Array.from(document.querySelectorAll('[id^="resultSelect"]')).indexOf(element);
+
+            //for get the list of interview result
+            var statusChange = document.querySelectorAll('[id^="statusChange"]');
+
+            //for insert status value in database
+            var addStatus = null;
+
+            //loop interview status and find status that change result colume
+
+
+            //for build interview object
+            const CurriculumVitae = {
+              id: candidateId,
+              status: cVStatus
+
+            };
+
+            fetch('/mng/jobOffer/addCVStatus', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                [header]: token,
+                'X-XSRF-Token': token
+              },
+              body: JSON.stringify(CurriculumVitae)
+            })
+              .then(response => {
+                if (!response.ok) {
+                  console.log("Fail");
+                  throw new Error("Response is not ok");
+                }
+
+                return response.text();
+              })
+              .then(data => console.log(data))
+              .catch(error =>
+                console.error('Error :' + error)
+              );
+
+
+          })//end tag
+        }) //end tag of  result select
+
+        //delclare variable to get from each interview table
+        var candidateNameMail,jobPositionMail;
+
+        // //to send job Offer mail
+        document.querySelectorAll(".send-btn").forEach((el, index) => {
+          el.onclick = (e) => {
+            const targetBtn = e.target.closest('.send-btn');
+            if (targetBtn) {
+              var mailStatus = targetBtn.dataset.mailstatus;
+
+              if (mailStatus === 'false') {
+                if (targetBtn.dataset.result === 'PASSED') {
+                  sendMailCandidateId.value = targetBtn.dataset.candidateid;
+                  candidateNameMail = targetBtn.dataset.candidatename;
+                  jobPositionMail=targetBtn.dataset.jobposition;
+                  toEmail.value = targetBtn.dataset.email;
+                  fromEmail.value = 'acecompany771@gmail.com';
+                  pageRedirect.value = 1;
+                  confirmInterviewResultModal.show();
+                } else { checkInterviewResultModal.show(); }
+              }
+              else {
+                togglePopupWarning('Mail Warning !!', 'Job Offer mail has been sent ')
+              }
+            }
+          }
+        });//end tag of send mail
+
+        //to select email type
+        document.getElementById('typeSelect').addEventListener('change', function () {
+          var typeId = typeSelect.value;
+          var editor = tinymce.get('interviewMail');
+          if (typeId !== 'Choose') {
+            fetch('/mng/mail/getEmailType', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                [header]: token,
+                'X-XSRF-Token': token
+              },
+              body: JSON.stringify(typeId)
+            })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Response is not ok");
+                }
+                return response.json();
+              }
+              )
+              .then(data => {
+                if (data.subject == null) {
+                  editor.setContent('');
+                  subject.value = null;
+                }
+                else {
+                  var replaceName = (data.bodyText).replaceAll('[Candidate\'s Name]', candidateNameMail);
+                  var replaceJobPosition=replaceName.replaceAll('[Job Position]',jobPositionMail);
+                  editor.setContent(replaceJobPosition);
+                  subject.value = data.subject;
+                }
+              })
+              .catch(error => {
+                console.error('Error :' + error)
+              });
+          }
+
+        })//end tag of email type select
+
+        document.querySelectorAll(".job-accept-btn").forEach(el => {
+          el.addEventListener("click", (e) => {
+            document.getElementById("job-accept-id").value = e.target.id;
+            const hasMailSent = e.target.dataset.mail;
+            if(hasMailSent == "true") {
+              $("#change-job-accept-modal").modal("show");
+            } else {
+              $("#job-accept-disabled-modal").modal("show");
+            }
+          })
+        })
+      })
+      function applyFilters() {
+
+        var cvFilter = $("#cv").val();
+
+        var jobofferFilter = $("#job-offer").val();
+        var jobAcceptedFilter = $("#job-accepted").val();
+
+        table.column(5).search(cvFilter).draw();
+        table.column(7).search(jobofferFilter).draw();
+        table.column(9).search(jobAcceptedFilter).draw();
+      }
+      $("#cv").on("change", function () {
+        console.log("title filter is working");
+        applyFilters();
+      });
+      $("#job-offer").on("change", function () {
+        console.log("title filter is working");
+        applyFilters();
+      });
+      $("#job-accepted").on("change", function () {
+        applyFilters();
+      });
+
+      function downloadFilteredCvs() {
+        var filteredData = table.rows({ filter: 'applied' }).data().toArray();
+        // Send an AJAX request to the server
+        $.ajax({
+          url: '/mng/candidate/download-filtered', // Adjust the URL to match your server endpoint
+          type: 'POST',
+          data: JSON.stringify(filteredData),
+          contentType: 'application/json',
+          success: function (response) {
+            // Trigger the download based on the response
+            var downloadLink = document.createElement('a');
+            downloadLink.href = response.downloadUrl;
+            downloadLink.download = 'filtered_cvs.zip';
+            downloadLink.click();
+          },
+          error: function () {
+            // Handle error
+          }
+        });
+      }
+
+
+    });
+
+
+  </script>
+
+</body>
+
+</html>

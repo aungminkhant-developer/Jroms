@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!--header-->
+    <div class="row bg-light" style="border-bottom: solid; border-color: rgb(216, 216, 216); padding-bottom: 15px;">
+
+         <!--top-navbar-->
+  <div th:fragment="top-navbar" style="height: 5vh;">
+    <nav class="navbar navbar-expand-md navbar-light col-12 ">
+      <div class="align-items-start container-fluid row">
+        <div class="col-8">
+          <a class="navbar-brand" href="#"> <img src="../images/ACE.jpg" class="img-fluid" alt="ACE" width="100"
+              height="15"></a>
+        </div>
+
+
+        <div th:fragment="toggler-button">
+          <!--toggle button for mobile nav-->
+          <button class="position-absolute top-100 end-0 navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-navbar"
+            aria-controls="top-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <!--navbar-links-->
+
+          <div class="col position-absolute top-20 end-0 collapse navbar-collapse justify-content-end" id="top-navbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="fa-solid fa-bell"></i><span class="position-absolute top-40 start-0 translate-middle badge rounded-pill bg-danger"> 4</span></a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Separated link</a></li>
+                </ul>
+              
+                  
+                 
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Contact Admin</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Tasks</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="#">Logout</a>
+              </li>
+
+             
+
+              <li class="nav-item">
+                <p>
+                  <button class="btn btn-light" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                    <i class="fas fa-bars"></i>
+                  </button>
+      
+                </p>
+              </li>
+            </ul>
+
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+    </nav>
+  </div>
+    </div>
+
+
+
+    <!--middle-->
+    <div class="row container-fluid">
+
+        <!--side-->
+        <div class=" col-auto bg-transparent" style="padding-top: 5vh; overflow: auto; height: 86vh;">
+
+            <!--side-navbar-->
+            <div class="col-auto collapse collapse-horizontal" id="collapseWidthExample" th:fragment="side-navbar"
+                style="height: 50vh;">
+
+                <!--Accordion-->
+                <div class="accordion" id="side-navbar">
+                    
+                    <!--General-->
+                    <div class="accordion-item" style="border:none;">
+                        <div class="row">
+                            <p><i class="fa-brands fa-hashnode"></i> <a class="col btn" href="#"
+                                    role="button">Dashboard</a></p>
+                        </div>
+                        <div class="row">
+                            <p><i class="fa-solid fa-clipboard-question"></i> <a class="col btn" href="#"
+                                    role="button">Interviews</a></p>
+                        </div>
+                        <div class="row">
+                            <p><i class="fa-solid fa-user"></i> <a class="col btn" href="#" role="button">Candidates</a>
+                            </p>
+                        </div>
+                        <hr>
+                    </div>
+
+                    <!--User-->
+                    <div class="accordion-item" style="border: none;">
+                      <h2 class="accordion-header" id="headingOne">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                          Users Management
+                      </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                      data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                          <a href="#">New User</a>
+                          <br>
+                          <a href="#">View Users</a>
+                      </div>
+                    </div>
+                  </div>
+
+                    <!--Job-->
+                    <div class="accordion-item" style="border:none;">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Job Offers
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <a href="#">New Offers</a>
+                                <br>
+                                <a href="#">View Offers</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Other-->
+                    <div class="accordion-item" style="border:none;">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Others
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <a href="#">New Job Title</a>
+                                <br>
+                                <a href="#">New Template</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+        </div>
+
+        <!--content-->
+        <div class="col bg-light" style=" overflow:auto; width: auto; height: 86vh;">
+            <!--alerts-->
+            <div class="col" th:fragment="alerts">
+            
+              <div th:if="" class=" alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
+            
+                <p><i class="fas fa-exclamation-triangle"></i>Warning! <a href="#" class="alert-link">Ok</a></p>
+            
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            
+              <div th:if="" class=" alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+            
+                <p><i class="fa-solid fa-check"></i>
+                  Success! </p>
+            
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+
+    <!--footer-->
+    <div class="row bg-gradient align-bottom" style="height: 3%; width: 100%; position:fixed; bottom: 0;">
+      <footer class="footer small mt-auto py-3 fixed-bottom custom-footer">
+      <div class="container text-center">
+        <span class=""
+          >&copy;2023 All rights reserved by ACE Data Systems Ltd.</span
+        >
+      </div>
+    </footer>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

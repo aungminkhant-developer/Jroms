@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Departments</title>
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+        <link rel="stylesheet" th:href="@{/css/departments.css}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <!--AlertBox-->
+        <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content"><!-- Write your code or content here -->
+                            <div class="pe-3 ps-3 pt-2 pb-2">
+                                <div th:replace="jobDetail_Interview :: alertBox"></div>
+                                <table id="departments" class="table table-striped w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Department Head</th>
+                                            <th>Actions</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <form id="delete-department-form" th:action="@{/mng/departments/delete}" method="post">
+                                    <input id="delete-department-input" type="hidden" name="id" value="">
+                                </form>
+                            </div>
+                            <!-- Add new department modal -->
+                            <div class="modal modal-lg fade" id="add-department-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Add Department</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="add-department-form" method="post" th:action="@{/mng/departments/add}" th:object="${newDepartment}">
+                                                <div class="row pe-4">
+                                                    <label for="id" class="col-3 col-form-label me-2">ID:</label>
+                                                    <input th:field="*{id}" type="text" class="col form-control" id="dept-id">
+                                                </div>
+                                                <p id="id-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{id}"></p>
+                    
+                                                <div class="mt-3 row pe-4">
+                                                    <label for="name" class="col-3 col-form-label me-2">Department Name:</label>
+                                                    <input th:field="*{name}" type="text" class="col form-control" id="name">
+                                                </div>
+                                                <p id="name-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{name}"></p>
+                    
+                                                <div class="mt-3 row pe-4">
+                                                    <label class="col-3 col-form-label me-2">Department Head:</label>
+                                                    
+                                                    <select th:unless="${#lists.size(departmentHeads) == 0}" th:field="*{departmentHead}" id="department-head" class="col form-select">
+                                                        <option th:each="departmentHead : ${departmentHeads}" th:value="${departmentHead.id}" th:text="${departmentHead.name}"></option>
+                                                    </select>
+                                                    <select th:if="${#lists.size(departmentHeads) == 0}" class="col form-select">
+                                                        <option selected>No available department heads.</option>
+                                                    </select>
+                                                </div>
+                                                <p id="department-head-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{departmentHead}"></p>
+                                                <p id="new-department-error" class="error mb-3 pe-4 text-danger text-end" th:errors="${newDepartment}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-primary" onclick="addDepartment()">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit department modal -->
+                            <div class="modal modal-lg fade" id="edit-department-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Edit Department</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="edit-department-form" method="post" th:action="@{/mng/departments/update}" th:object="${updateDepartment}">
+                                                <div class="row pe-4">
+                                                    <label for="id" class="col-3 col-form-label me-2">ID:</label>
+                                                    <input th:field="*{id}" type="text" class="col form-control" id="id" readonly>
+                                                </div>
+                                                <p id="id-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{id}"></p>
+
+                                                <div class="mt-3 row pe-4">
+                                                    <label for="name" class="col-3 col-form-label me-2">Department Name:</label>
+                                                    <input th:field="*{name}" type="text" class="col form-control" id="name">
+                                                </div>
+                                                <p id="name-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{name}"></p>
+
+                                                <div class="mt-3 row pe-4">
+                                                    <label class="col-3 col-form-label me-2">Department Head:</label>
+                                                    <select th:field="*{departmentHead}" id="department-head" class="col form-select">
+                                                        <option th:each="departmentHead : ${departmentHeads}" th:value="${departmentHead.id}" th:text="${departmentHead.name}"></option>
+                                                    </select>
+                                                </div>
+                                                <p id="department-head-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{departmentHead}"></p>
+                                                <p id="update-department-error" class="error mb-3 pe-4 text-danger text-end" th:errors="${updateDepartment}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Created By:
+                                                        <span id="audit-creator"></span>
+                                                        <span id="audit-created-date"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Last Updated By:
+                                                        <span id="audit-updater"></span>
+                                                        <span id="audit-last-updated"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button class="btn btn-primary" onclick="updateDepartment()">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+
+                        <!-- Delete department modal -->
+                        <div class="modal fade" id="delete-department-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-danger">Confirm Delete</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="fs-5">Are you sure to deleted the selected department?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteDepartment()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+        <!--AlertBox-->
+        <script th:src="@{/js/alertBox.js}"></script>
+
+        <script th:inline="javascript">
+            const departmentAddSuccess =/*[[${departmentAddSuccess}]]*/ null;
+            const departmentUpdateSuccess =/*[[${departmentUpdateSuccess}]]*/ null;
+            const departmentDeleteSuccess =/*[[${departmentDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (departmentAddSuccess != null) {
+                togglePopupSuccess("Success", departmentAddSuccess);
+            }
+            if (departmentUpdateSuccess != null) {
+                togglePopupSuccess("Success", departmentUpdateSuccess);
+            }
+            if (departmentDeleteSuccess != null) {
+                togglePopupSuccess("Success", departmentDeleteSuccess);
+            }
+
+            $(function () {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                $(document).ajaxSend(function (e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+                const table = $('table#departments').DataTable({
+                    dom: 'B<"d-flex justify-content-between align-items-center ps-2 pe-2"lf>r<"mt-2 mb-2"t><"d-flex justify-content-between pe-2"ip>',
+                    buttons: [
+                        {
+                            text: 'Add new department',
+                            attr: {
+                                id: 'add-new-department-btn'
+                            },
+                            className: 'btn btn-primary fw-bold',
+                            action: function (e, dt, node, config) {}
+                        }
+                    ],
+                    ajax: {
+                        contentType: 'application/json',
+                        url: '/mng/rest/departments',
+                        type: 'POST',
+                        data: function (d) {
+                            return JSON.stringify(d);
+                        }
+                    },
+                    language: {
+                        "infoFiltered": "",
+                        searchPlaceholder: "Search query"
+                    },
+                    stateSave: true,
+                    serverSide: true,
+                    columns: [
+                        {
+                            data: 'id',
+                            render: function (data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            },
+                            orderable: false
+                        },
+                        {
+                            data: 'id'
+                        },
+                        {
+                            data: 'name'
+                        },
+                        {
+                            data: 'departmentHead.name'
+                        }, {
+                            data: "id",
+                            render: function (data, type, row, meta) {
+                                return '<td>' + '<i id="' + meta.row + '" class="fa-solid fa-pen-to-square edit-btn"></i>' + '<i id="' + data + '" class="fa-solid fa-trash ms-3 delete-btn" data-bs-toggle="modal" data-bs-target="#delete-department-modal"></i>' + '</td>';
+                            },
+                            orderable: false
+                        }, {
+                            data: "id",
+                            render: function (data, type, row, meta) {
+                                return '<a class="btn btn-primary" href="/mng/departments/' + data + '/teams">View Teams</a>'
+                            },
+                            orderable: false
+                        }
+                    ]
+                });
+
+
+                table.on('draw', function () { // Add proper styles to the add new button
+                    $('#add-new-department-btn').removeClass('dt-button');
+                    $('#add-new-department-btn').attr("data-bs-toggle", "modal");
+                    $('#add-new-department-btn').attr("data-bs-target", "#add-department-modal");
+
+                    // Make the filter and search box of datatable a bit larger
+                    $('#departments_length').find("select").removeClass("form-select-sm");
+                    $('#departments_filter').find('input').removeClass("form-control-sm");
+
+                    // Populate data for the edit modal
+                    /*<![CDATA[*/
+                    document.querySelectorAll('.edit-btn').forEach(editBtn => {
+                        editBtn.onclick = (e) => {
+                            document.querySelectorAll(".error").forEach((errorElement) => {
+                                errorElement.remove();
+                            });
+
+                            // Get the selected department object
+                            var selectedIndex = e.target.id;
+                            const dept = table.row(selectedIndex).data();
+
+                            // Get auditing info
+                            const createdDate = new Date(dept.createdDate);
+                            const creatorName = dept.createdBy.name;
+                            const lastUpdated = new Date(dept.lastUpdated);
+                            const updaterName = dept.lastUpdatedBy.name;
+                            
+                            $('#edit-department-modal').modal('show');
+                            // Fill the input fields
+                            $('#edit-department-modal').find('#id').val(dept.id);
+                            $('#edit-department-modal').find('#name').val(dept.name);
+                            $('#edit-department-modal').find('#department-head').prepend(
+                                `<option id="active-department-head" value="${dept.departmentHead.id}">${dept.departmentHead.name}</option>`
+                            );
+                            $('#edit-department-modal').find('option[value=' + dept.departmentHead.id + ']').prop('selected', true);
+
+                            // Fill the auditing info
+                            $('#edit-department-modal').find('#audit-creator').text(creatorName);
+                            $('#edit-department-modal').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                            $('#edit-department-modal').find('#audit-updater').text(updaterName);
+                            $('#edit-department-modal').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                        }
+                    })
+
+                    /*]]>*/
+
+                    document.querySelectorAll(".delete-btn").forEach((btn) => {
+                        btn.onclick = (e) => {
+                            $("#delete-department-input").val(e.target.id);
+                        };
+                    });
+
+
+                })
+
+            });
+            
+            var departmentHead =/*[[${updateDepartment.departmentHead}]]*/ null;
+        </script>
+        <script th:src="@{/js/departments.js}"></script>
+        <script th:src="@{/js/main.js}"></script>
+    </body>
+
+</html>

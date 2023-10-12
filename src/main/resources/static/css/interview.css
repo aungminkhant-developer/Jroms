@@ -1,0 +1,37 @@
+@charset "ISO-8859-1";
+
+#date-range {
+    cursor: pointer;
+    border: 1px solid #CED4DA;
+    border-radius: 0.5em;
+}
+
+.fa {
+    font-family: 'Arial', 'Font Awesome 5 Free', 'Font Awesome 5 Brands';
+    font-weight: 900;
+}
+
+.table td {
+    max-width: 12rem;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    color: #fff;
+    padding: 20px 40px;
+    border-radius: 5px;
+    display: none;
+    z-index: 999;
+
+}
+
+.cursor-copy:hover {
+    cursor: copy;
+}

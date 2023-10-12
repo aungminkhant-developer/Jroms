@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemalocation="http://www.thymeleaf.org ">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SideBar</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+    </head>
+<body>
+    <div
+        class="container-fluid">
+        <!-- Sidebar -->
+        <div class="row">
+            <div th:fragment="sidebar" id="main-sidebar" class="col-2 sidebar min-vh-100 pe-0">
+                <div class="container">
+                    <div class="nav-brand d-flex align-items-center justify-content-center">
+                        <a href="/mng/dashboard" class="navbar-brand nav-title fs-5 fw-semibold">ACE
+                            <span id="navbar-title">Data Systems</span>
+                        </a>
+                    </div>
+
+                    <div class="navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li id="dashboard" class="nav-item active">
+                                <a href="/mng/dashboard" class="nav-link d-flex align-items-center">
+                                    <i class="fa-solid fa-chart-line nav-icon"></i>
+                                    <div class="nav-text">Dashboard</div>
+                                </a>
+                            </li>
+                            <li id="allInterviews" class="nav-item d-flex align-items-center">
+                                <a href="/mng/interview/allInterviews/" class="nav-link d-flex align-items-center">
+                                    <i class="fa-solid fa-handshake nav-icon"></i>
+                                    <div class="nav-text">Interviews</div>
+                                </a>
+                            </li>
+                            <li id="candidates" class="nav-item d-flex align-items-center">
+                                <a href="/mng/candidates/" class="nav-link d-flex align-items-center">
+                                    <i class="fa-solid fa-users nav-icon"></i>
+                                    <div class="nav-text">Candidates</div>
+                                </a>
+                            </li>
+                            <span id="logged-in-username" class="d-none" sec:authentication="principal.username"></span>
+                            <li sec:authorize="hasRole('ADMIN')" type="button" class="nav-item d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#user-management-sublist">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-user-tie nav-icon"></i>
+                                    <a href="#" class="nav-link nav-text">User Management</a>
+                                </div>
+                                <i id="user-management-sublist-icon" class="fa-solid fa-caret-right m-0"></i>
+                            </li>
+                            <div sec:authorize="hasRole('ADMIN')" id="user-management-sublist" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <ul class="user-mng-sublist">
+                                        <li id="add-users" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-user-plus nav-icon"></i>
+                                                <a href="/mng/users/add" class="nav-link nav-text">Add User</a>
+                                            </div>
+                                        </li>
+                                        <li id="view-users" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-users-viewfinder nav-icon"></i>
+                                                <a href="/mng/users/viewUser" class="nav-link nav-text">View Users</a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <li type="button" class="nav-item d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#job-offer-sublist">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-briefcase nav-icon"></i>
+                                    <a href="#" class="nav-link nav-text">Job Offer</a>
+                                </div>
+                                <i id="job-offer-sublist-icon" class="fa-solid fa-caret-right m-0"></i>
+                            </li>
+                            <div id="job-offer-sublist" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <ul class="user-mng-sublist">
+                                        <li id="add-offers" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-bullhorn nav-icon"></i>
+                                                <a href="/mng/job-details/add" class="nav-link nav-text">New Offer</a>
+                                            </div>
+                                        </li>
+                                        <li id="view-offers" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-scroll nav-icon"></i>
+                                                <a href="/mng/jobs" class="nav-link nav-text">View Offers</a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <li sec:authorize="hasRole('ADMIN') or hasRole('HR_SENIOR') or hasRole('DEPARTMENT_HEAD') or hasRole('TEAM_LEADER')" type="button" class="nav-item d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#others-sublist">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-chart-simple nav-icon"></i>
+                                    <a href="#" class="nav-link nav-text">Others</a>
+                                </div>
+                                <i id="others-sublist-icon" class="fa-solid fa-caret-right m-0"></i>
+                            </li>
+                            <div sec:authorize="hasRole('ADMIN') or hasRole('HR_SENIOR') or hasRole('DEPARTMENT_HEAD') or hasRole('TEAM_LEADER')" id="others-sublist" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <ul class="user-mng-sublist">
+                                        <li id="email-templates" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-envelope nav-icon"></i>
+                                                <a href="/mng/mail/create" class="nav-link nav-text">Email Templates</a>
+                                            </div>
+                                        </li>
+                                        <li id="work-schedules" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-regular fa-calendar-days nav-icon"></i>
+                                                <a href="/mng/work-schedules/" class="nav-link nav-text">Work Schedules</a>
+                                            </div>
+                                        </li>
+                                        <li id="locations" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-location-dot nav-icon"></i>
+                                                <a href="/mng/locations" class="nav-link nav-text">Locations</a>
+                                            </div>
+                                        </li>
+                                        <li id="departments" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-regular fa-building nav-icon"></i>
+                                                <a href="/mng/departments" class="nav-link nav-text">Departments & Teams</a>
+                                            </div>
+                                        </li>
+                                        <li id="miscellaneous" class="nav-item d-flex align-items-center sublist-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-cubes-stacked nav-icon"></i>
+                                                <a href="/mng/miscellaneous" class="nav-link nav-text">Miscellaneous</a>
+                                            </div>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <li id="reports" class="nav-item active">
+                                <a href="/mng/reports" class="nav-link d-flex align-items-center">
+                                    <i class="fa-solid fa-scroll nav-icon"></i>
+                                    <div class="nav-text">Reports</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col p-0">
+                <div class="fluid-container">
+                    <div th:fragment="main-header" class="main-header">
+                        <ul class="ps-2 pe-2 navbar-nav d-flex flex-row h-100 align-items-center justify-content-between">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id="toggle-sidebar">
+                                    <i class="fa-solid fa-bars ms-4"></i>
+                                </a>
+                            </li>
+                            <div class="d-flex align-items-center">
+                                <!-- User Role -->
+                                <!-- TODO - enable the following line to activate user specific notification -->
+                                <div class="d-none" th:data-username="${#authentication.getPrincipal().getUsername()}" id="user-role">[[${#authentication.getAuthorities()}]]</div>
+                                <!-- <div class="d-none" th:data-username="mary" id="user-role">[[${#authentication.getAuthorities()}]]</div> -->
+                                
+                                <li class="nav-item fw-bold me-3">
+                                    <!-- <i class="fa-solid fa-bell fa-lg notification-bell-active"></i> -->
+                                    <i class="fa-regular fa-bell fa-lg pointer" id="notificationDropdown" data-bs-target="#notificationContainer" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                    <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationContainer">
+                                        <div id="notification-filter">
+                                            <div id="noti-group-by-card" class="card m-2">
+                                                <div class="card-body">
+                                                    <span class="fw-normal">Group By Job Offer:</span>
+                                                    <span class="form-switch">
+                                                        <input id="noti-group-by-toggle" class="form-check-input" type="checkbox" role="switch">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <ul class="list-unstyled" id="notification-dropdown">
+                                            </ul>
+                                        </div>
+                                        
+                                    </div>
+                                    <ul id="notification-dropdown" class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
+                                        <li id="notification-filter" class="card m-2">
+                                            <div class="card-body">
+                                                <span class="fw-normal">Group By Job Offer:</span>
+                                                <span class="form-switch">
+                                                    <input id="noti-group-by-toggle" class="form-check-input" type="checkbox" role="switch">
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item fw-bold me-3">
+                                    <a class="nav-link" href="/mng/dashboard">Home</a>
+                                </li>
+                                <li class="nav-item fw-bold me-3">
+                                    <a class="nav-link" href="/logout">Logout</a>
+                                </li>
+                            </div>
+
+                        </ul>
+                    </div>
+                    <div class="main-content">
+                        <h2>Main Content</h2>
+                        <p class="fs-1">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi vel eius possimus odit labore facilis delectus nam ab earum, veritatis necessitatibus consectetur at rerum fugit, eveniet modi totam nostrum veniam officiis consequatur aliquam sunt praesentium! Repellendus dicta culpa perspiciatis, consequuntur mollitia iste et ab sed debitis fuga maiores repudiandae deserunt animi repellat similique nesciunt obcaecati, adipisci odit vero eligendi alias quam? Accusantium iusto tenetur sit eligendi impedit voluptatum incidunt magni, reprehenderit delectus earum placeat. Dolores nulla doloribus ipsum blanditiis culpa vero ipsa esse nemo. Eveniet rerum voluptatem commodi. Porro, unde expedita! Eius, quisquam quibusdam? Deleniti nulla ipsam optio molestias nesciunt?
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+    <script th:src="/js/main.js"></script>
+</body></html>

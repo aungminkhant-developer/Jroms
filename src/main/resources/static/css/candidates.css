@@ -1,0 +1,32 @@
+.menu {
+  border: 1px solid rgb(22, 22, 169);
+  border-radius: 5px;
+  min-height: 1em;
+  max-height: 8em;
+  overflow: auto;
+}
+
+.menu li {
+  list-style: none;
+  width: 100%;
+  margin: 0;
+  padding: 0.2em 0.5em;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+.selected {
+  background: rgb(22, 22, 169);
+  color: white;
+}
+
+#daterange {
+    cursor: pointer;
+    border: 1px solid #CED4DA;
+    border-radius: 0.5em;
+}

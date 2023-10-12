@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.thymeleaf.org ">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit User</title>
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="/css/alertBox.css" />
+    <link rel="stylesheet" th:href="@{/css/loading_mail.css}">
+    <style>
+        .error-display {
+            color: red;
+            font-size: 14px;
+            height: 14px;
+        }
+
+        .box-style {
+            border: 1px inset rgb(150, 150, 150);
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Styling for the confirmation modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9998;
+        }
+
+        .confirmation-modal-content {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 30px;
+            max-width: 500px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            animation: unfoldModal 0.3s forwards;
+        }
+
+        .custom-font-style {
+            font-weight: bolder;
+            font-style: italic;
+        }
+
+        .warning-container {
+            background-color: #ffeeb5;
+            color: #85646c;
+            border-left: 5px solid #aa903a;
+            border-radius: 5px;
+        }
+
+        /* Styling for both modal buttons */
+        .modal-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        /* Styling for the "Cancel" button */
+        .cancel {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        /* Styling for the "Yes" button */
+        .confirm {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        /* Hover effect for both buttons */
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* Unfolding animation */
+        @keyframes unfoldModal {
+            0% {
+                transform: translate(-50%, -70%) scaleY(0);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scaleY(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div th:replace="custom_fragments :: sidebar"></div>
+            <div class="col p-0">
+                <div class="fluid-container">
+                    <!-- Main Header -->
+                    <div th:replace="custom_fragments :: main-header"></div>
+                    <!-- Main Content -->
+                    <div class="main-content"><!-- Write your code or content here -->
+                        <div class="row col container-fluid overflow-auto">
+                            <div class="col-4"></div>
+
+                            <div class="col-5 box-style pb-3 mt-4">
+                                <!--User Registration Form-->
+                                <form th:action="@{/mng/users/edit}" method="post" th:object="${user}">
+                                    <div class="row">
+                                        <!--Heading-->
+
+                                        <div class="col">
+                                            <br />
+                                            <h3 class="text-center">
+                                                Edit User Credentials
+                                            </h3>
+                                            <div class="col"></div>
+
+                                            <!-- this is warning alert box-->
+					<div th:replace="jobDetail_Interview :: alertBox"></div>
+                                        </div>
+
+
+                                        <!--  hidden field for Id -->
+                                        <input type="hidden" th:field="*{id}" class="form-control" id="id"
+                                            aria-describedby="nameHelp" />
+
+
+
+                                        <!--Name-->
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Name</label>
+                                            <input type="text" th:field="*{name}" class="form-control" id="name"
+                                                aria-describedby="nameHelp" />
+                                            <div id="name-error" class="error-display"></div>
+
+                                            <!-- back-end error handling process -->
+                                            <div class="error-display" th:if="${#fields.hasErrors('name')}">
+                                                <span th:errors="*{name}"></span>
+                                            </div>
+                                        </div>
+
+
+
+                                        <!--Username-->
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" th:field="*{username}" class="form-control" id="username"
+                                                aria-describedby="usernameHelp" />
+                                            <div id="username-error" class="error-display"></div>
+
+                                            <!-- back-end error handling process -->
+                                            <div class="error-display" th:if="${#fields.hasErrors('username')}">
+                                                <span th:errors="*{username}"></span>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="mb-3">
+                                            <label for="role" class="form-label">Role</label>
+                                            <select class="form-select" name="roleId" id="role" th:field="*{roleId}">
+                                                <th:block th:each="role : ${roles}">
+                                                    <option th:value="${role.id}"
+                                                        th:text="${role.name.replaceFirst('^ROLE', '').replace('_', ' ')}"
+                                                        th:selected="${role.id == user.roleId}"></option>
+                                                </th:block>
+                                            </select>
+
+
+                                            <div id="role-error" class="error-display"></div>
+                                        </div>
+
+                                        <br />
+                                        <br />
+                                        <!--Email-->
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" th:field="*{email}" class="form-control" id="email"
+                                                aria-describedby="emailHelp" />
+                                            <div id="email-error" class="error-display"></div>
+
+                                            <!-- back-end error handling process -->
+                                            <div class="error-display" th:if="${#fields.hasErrors('email')}">
+                                                <span th:errors="*{email}"></span>
+                                            </div>
+                                        </div>
+
+                                        <!--Password-->
+                                        <div class="mb-3">
+                                            <label for="inputPassword" class="col-form-label">Password (Optional)</label>
+                                            <div class="input-group">
+                                                <input type="password" th:field="*{password}" id="inputPassword"
+                                                    class="form-control" aria-describedby="passwordHelpInline" />
+
+                                                <span class="input-group-text toggle-password"
+                                                    onclick="togglePasswordVisibility('inputPassword')">
+                                                    <i class="fas fa-eye-slash"></i>
+                                                </span>
+                                                <span class="input-group-text"
+                                                    onclick="generateAndShowRandomPassword()">
+                                                    <i class="fa-solid fa-dice" title="Password Generator"></i>
+                                                </span>
+                                            </div>
+                                            <div id="password-error" class="error-display"></div>
+
+                                            <!-- back-end error handling process -->
+                                            <div class="error-display" th:if="${#fields.hasErrors('password')}">
+                                                <span th:errors="*{password}"></span>
+                                            </div>
+                                        </div>
+
+                                        <!--Confirm Password-->
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="col-form-label">Confirm Password (Optional)</label>
+                                            <div class="input-group">
+                                                <input type="password" th:field="*{confirmPassword}"
+                                                    id="confirmPassword" class="form-control"
+                                                    aria-describedby="confirmpasswordHelpInline" />
+
+                                                <span class="input-group-text toggle-password"
+                                                    onclick="togglePasswordVisibility('confirmPassword')">
+                                                    <i class="fas fa-eye-slash"></i>
+                                                </span>
+                                            </div>
+                                            <div id="confirmPassword-error" class="error-display"></div>
+
+                                            <!-- back-end error handling process -->
+                                            <div class="error-display" th:if="${#fields.hasErrors('confirmPassword')}">
+                                                <span th:errors="*{confirmPassword}"></span>
+                                            </div>
+
+
+                                        </div>
+
+                                        <br />
+
+                                        <div class="container d-flex justify-content-evenly align-items-center">
+                                            <button type="reset" class="btn btn-secondary">
+                                                &nbsp;Reset&nbsp;
+                                            </button>
+                                            <button type="button" class="btn btn-primary" id="submitFormBtn">
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- loading -->
+								<div class="loading-animation" id="loadingAnimation">
+									<div class="loader"></div>
+								  </div>
+                                    <!-- The confirmation modal -->
+                                    <div class="confirmation-modal" id="confirmationModal">
+                                        <div class="confirmation-modal-content">
+                                            <div class="confirmation-box-header">
+                                                <h2 class="text-center mb-3" style="font-weight: bolder">
+                                                    Confirm user detail update
+                                                </h2>
+                                            </div>
+                                            <p style="font-size: 19px">
+                                                Are you sure you want to update user account for
+                                                <span id=""
+                                                    class="userNamePlaceholder custom-font-style text-nowrap"></span>?
+                                            </p>
+                                            <div class="warning-container d-flex mb-3">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <i class="fa-solid fa-triangle-exclamation fa-2xl ms-2 me-3"></i>
+                                                </div>
+                                                <p class="mb-0">
+                                                    By updating this account, user
+                                                    <span id=""
+                                                        class="userNamePlaceholder custom-font-style text-nowrap"></span><br />
+                                                    will be able to do
+                                                    <span id="userRolePlaceholder"
+                                                        class="custom-font-style text-nowrap"></span>
+                                                    permission.
+                                                </p>
+                                            </div>
+
+                                            <div class="button-container d-flex justify-content-between">
+                                                <button type="button" id="cancelButtonModal"
+                                                    class="modal-button cancel">
+                                                    No, Cancel
+                                                </button>
+                                                <button type="submit" id="confirmUserCreation"
+                                                    class="modal-button confirm">
+                                                    Yes, Update
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+            <script th:src="@{/js/main.js}"></script>
+            <!-- SockJS, STOMP, and Notification JS  -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+            <script th:src="@{/js/websocket-listener.js}"></script>
+            <script th:src="@{/js/notification.js}"></script>
+            
+            <script src="/js/navbar.js"></script>
+            <script src="/js/user-update-validator.js"></script>
+            <script src="/js/password-generator.js"></script>
+            <script th:src="@{/js/alertBox.js}"></script>
+
+		<script th:inline="javascript">
+			const updateError = /*[[${updateError}]]*/ null;
+			const error = /*[[${error}]]*/ null;
+
+			if(updateError != null){
+				togglePopupDanger("ERROR", updateError);
+			}
+			if(error != null){
+				togglePopupDanger("ERROR", error);
+			}
+		</script>
+
+            <script>
+                function togglePasswordVisibility(inputId) {
+                    const inputElement = document.getElementById(inputId);
+                    const iconElement =
+                        inputElement.nextElementSibling.querySelector("i");
+
+                    if (inputElement.type === "password") {
+                        inputElement.type = "text";
+                        iconElement.classList.remove("fa-eye-slash");
+                        iconElement.classList.add("fa-eye");
+                    } else {
+                        inputElement.type = "password";
+                        iconElement.classList.remove("fa-eye");
+                        iconElement.classList.add("fa-eye-slash");
+                    }
+                }
+
+
+            </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+                integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+                crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+                integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+                crossorigin="anonymous"></script>
+        </div>
+    </div>
+
+</body>
+
+</html>

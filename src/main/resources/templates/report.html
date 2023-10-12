@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reports</title>
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link
+        rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <!-- Date Picker CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <link rel="stylesheet" th:href="@{/css/date-range-filter.css}">
+        <style>
+            .daterange {
+                padding: 8px 12px;
+                cursor: pointer;
+                border: 1px solid #CED4DA;
+                border-radius: 0.5em;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content">
+                            <!-- Write your code or content here -->
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="card text-bg-light">
+                                        <div class="card-header">
+                                            <div class="fs-4 fw-semibold">
+                                                Interview Process Summary Report
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <form
+                                                id="interview-process-summary-form" th:action="@{/mng/reports/interview-process-summary}" th:method="get" th:object="${interviewSummary}">
+                                                <!-- Date Range Picker Start -->
+                                                <div class="row mb-3">
+                                                    <div class="col-lg-3 col-md-2 col d-flex align-items-center">Date Range:
+                                                    </div>
+                                                    <div class="col-auto daterange" id="interview-daterange">
+                                                        <i class="fa fa-calendar"></i>&nbsp;
+                                                        <input id="interview-from-date" type="hidden" th:field="*{fromDate}">
+                                                        <input id="interview-to-date" type="hidden" th:field="*{toDate}">
+                                                        <span id="selected-daterange"></span>
+                                                        <i class="fa fa-caret-down"></i>
+                                                    </div>
+                                                    <p id="interview-date-error" class="col error m-0 pe-4 text-danger d-flex align-items-center" style="vertical-align: middle;"></p>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <label class="col-lg-3 col-md-2 col d-flex align-items-center">Group By:
+                                                    </label>
+                                                    <div class="col-lg-5 col-md-4 col-auto p-0">
+                                                        <select class="form-select" th:field="*{groupBy}">
+                                                            <option th:each="group : ${T(gp.pyinsa.jroms.constants.InterviewProcessSummaryGroup).values()}" th:value="${group}" th:text="${group.displayValue}"></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <p id="group-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{groupBy}"></p>
+                                                <!-- Date Range Picker End -->
+
+                                                <div class="row">
+                                                    <label class="col-lg-3 col-md-2 col d-flex align-items-center">Output Type:
+                                                    </label>
+                                                    <div class="col-lg-5 col-md-4 col-auto p-0">
+                                                        <select class="form-select" id="type" name="type">
+                                                            <option value="pdf">PDF</option>
+                                                            <option value="excel">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-end">
+                                            <button id="interview-process-summary-btn" type="button" class="btn btn-primary">Generate Report</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="card text-bg-light ">
+                                        <div class="card-header">
+                                            <div class="fs-4 fw-semibold">
+                                                Candidate Summary Report
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <form
+                                                id="candidate-summary-form" th:action="@{/mng/reports/candidate-summary}" th:method="get" th:object="${candidateSummary}">
+                                                <!-- Job Offer ID -->
+                                                <div id="job-offer-id-container" class="row mb-3 d-none">
+                                                    <label class="col-lg-3 col-md-2 col d-flex align-items-center">Job Offer ID:
+                                                    </label>
+                                                    <div class="col-lg-5 col-md-4 col-auto p-0">
+                                                        <input id="job-offer-id" class="form-control" type="number" th:field="*{jobOfferId}" placeholder="1234">
+                                                    </div>
+                                                    <p th:errors="*{jobOfferId}" class="col error m-0 pe-4 text-danger d-flex align-items-center" style="vertical-align: middle;"></p>
+                                                    <p id="job-offer-id-error" class="col error m-0 pe-4 text-danger d-flex align-items-center" style="vertical-align: middle;"></p>
+                                                </div>
+
+                                                <!-- Date Range Picker Start -->
+                                                <div id="candidate-date-range-container" class="row mb-3">
+                                                    <div class="col-lg-3 col-md-2 col d-flex align-items-center">Date Range:
+                                                    </div>
+                                                    <div class="col-auto daterange" id="candidate-daterange">
+                                                        <i class="fa fa-calendar"></i>&nbsp;
+                                                        <input id="candidate-from-date" type="hidden" th:field="*{fromDate}">
+                                                        <input id="candidate-to-date" type="hidden" th:field="*{toDate}">
+                                                        <span id="selected-daterange"></span>
+                                                        <i class="fa fa-caret-down"></i>
+                                                    </div>
+                                                    <p th:errors="*{fromDate}" class="col error m-0 pe-4 text-danger d-flex align-items-center" style="vertical-align: middle;"></p>
+                                                    <p id="candidate-date-error" class="col error m-0 pe-4 text-danger d-flex align-items-center" style="vertical-align: middle;"></p>
+                                                </div>
+
+                                                <!-- Date Range Picker End -->
+
+                                                <!-- Report By -->
+                                                <div class="row mb-3">
+                                                    <label class="col-lg-3 col-md-2 col d-flex align-items-center">Report By:
+                                                    </label>
+                                                    <div class="col-lg-5 col-md-4 col-auto p-0">
+                                                        <select class="form-select" id="reportby" th:field="*{reportBy}">
+                                                            <option th:each="reportBy : ${T(gp.pyinsa.jroms.constants.CandidateReportBy).values()}" th:value="${reportBy}" th:text="${reportBy.displayValue}"></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <label class="col-lg-3 col-md-2 col d-flex align-items-center">Output Type:
+                                                    </label>
+                                                    <div class="col-lg-5 col-md-4 col-auto p-0">
+                                                        <select class="form-select" id="type" name="type">
+                                                            <option value="pdf">PDF</option>
+                                                            <option value="excel">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-end">
+                                            <button id="candidate-summary-btn" type="button" class="btn btn-primary">Generate Report</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+
+        <!-- Date Picker JS -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+        <script th:src="@{/js/main.js}"></script>
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+        <script>
+            $("#interview-daterange span").html("Select your date range")
+
+            function cb(start, end) {
+                $("#interview-from-date").val(start.format('YYYY-MM-DD'));
+                $("#interview-to-date").val(end.format('YYYY-MM-DD'));
+                $('#interview-daterange span').html(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                document.getElementById("interview-date-error").innerText = "";
+            }
+
+            $('#interview-daterange').daterangepicker({
+                "showDropdowns": true,
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [
+                        moment(), moment()
+                    ],
+                    'Yesterday': [
+                        moment().subtract(1, 'days'),
+                        moment().subtract(1, 'days')
+                    ],
+                    'Last 7 Days': [
+                        moment().subtract(6, 'days'),
+                        moment()
+                    ],
+                    'Last 30 Days': [
+                        moment().subtract(29, 'days'),
+                        moment()
+                    ],
+                    'This Month': [
+                        moment().startOf('month'), moment().endOf('month')
+                    ],
+                    'Last Month': [
+                        moment().subtract(1, 'month').startOf('month'),
+                        moment().subtract(1, 'month').endOf('month')
+                    ]
+                },
+                "alwaysShowCalendars": true
+            }, cb);
+
+            // return all rows when date range gets cleared
+            $('#interview-daterange').on('cancel.daterangepicker', function (ev, picker) {
+                $("#interview-daterange span").html("Select your date range");
+                $("#interview-from-date").val("");
+                $("#interview-to-date").val("");
+            });
+
+            function candidateSummary(start, end) {
+                $("#candidate-from-date").val(start.format('YYYY-MM-DD'));
+                $("#candidate-to-date").val(end.format('YYYY-MM-DD'));
+                $('#candidate-daterange span').html(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                document.getElementById("candidate-date-error").innerText = "";
+            }
+
+            $('#candidate-daterange').daterangepicker({
+                "showDropdowns": true,
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [
+                        moment(), moment()
+                    ],
+                    'Yesterday': [
+                        moment().subtract(1, 'days'),
+                        moment().subtract(1, 'days')
+                    ],
+                    'Last 7 Days': [
+                        moment().subtract(6, 'days'),
+                        moment()
+                    ],
+                    'Last 30 Days': [
+                        moment().subtract(29, 'days'),
+                        moment()
+                    ],
+                    'This Month': [
+                        moment().startOf('month'), moment().endOf('month')
+                    ],
+                    'Last Month': [
+                        moment().subtract(1, 'month').startOf('month'),
+                        moment().subtract(1, 'month').endOf('month')
+                    ]
+                },
+                "alwaysShowCalendars": true
+            }, candidateSummary);
+
+            // return all rows when date range gets cleared
+            $('#candidate-daterange').on('cancel.daterangepicker', function (ev, picker) {
+                $("#candidate-daterange span").html("Select your date range");
+                $("#candidate-from-date").val("");
+                $("#candidate-to-date").val("");
+            });
+
+            $("#candidate-daterange span").html("Select your date range")
+
+            // Generate buttons
+            document.getElementById("interview-process-summary-btn").onclick = (e) => {
+                const fromDate = document.getElementById("interview-from-date");
+                if (fromDate.value == null || fromDate.value.length<= 0) {
+                    document.getElementById("interview-date-error").innerText = "Date is required";
+                } else {
+                    document.getElementById("interview-process-summary-form").submit();
+
+                }
+
+            }
+
+            document.getElementById("candidate-summary-btn").onclick = (e) => {
+                    const fromDate = document.getElementById("candidate-from-date");
+                    const jobOfferId = document.getElementById("job-offer-id");
+                    const reportBy = document.getElementById("reportby").value;
+
+                    if(reportBy == "DATE_RANGE") {
+                        // Report By Date Range
+                        if (fromDate.value == null || fromDate.value.length <= 0) {
+                            document.getElementById("candidate-date-error").innerText = "Date is required";
+                        } else {
+                            document.getElementById("candidate-summary-form").submit();
+                        }
+                    } else {
+                        // Report By Job Offer ID
+                        if(jobOfferId.value == null || jobOfferId.value.length <= 0) {
+                            document.getElementById("job-offer-id-error").innerText = "Job offer ID is required";
+                        } else {
+                            fetch("/mng/job-details/check/" + jobOfferId.value)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if(data) {
+                                        document.getElementById("candidate-summary-form").submit();
+                                    } else {
+                                        document.getElementById("job-offer-id-error").innerText = "Job offer not found";
+                                    }
+                                })
+                        }
+                    }
+                    
+            }
+
+            document.getElementById("reportby").onchange = (e) => {
+                const reportBy = e.target.value;
+                if(reportBy == "DATE_RANGE") {
+                    document.getElementById("candidate-date-range-container").classList.remove("d-none");
+                    document.getElementById("job-offer-id-container").classList.add("d-none");
+                } else {
+                    document.getElementById("candidate-date-range-container").classList.add("d-none");
+                    document.getElementById("job-offer-id-container").classList.remove("d-none");
+                }
+            }
+
+            document.getElementById("job-offer-id").oninput = (e) => {
+                document.getElementById("job-offer-id-error").innerText = "";
+            }
+        </script>
+
+    </body>
+</html>

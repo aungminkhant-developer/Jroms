@@ -1,0 +1,41 @@
+#teamStatistics {
+    width: 100%;
+    height: 50%;
+    overflow-y: auto;
+    padding-right: 15px; /* Add space for the scrollbar width */
+    box-sizing: border-box;
+}
+
+#teamStatistics::-webkit-scrollbar {
+    width: 8px;
+}
+
+#teamStatistics::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+#teamStatistics::-webkit-scrollbar-thumb {
+    background-color: #888888;
+    border-radius: 4px;
+}
+
+#candidateStatistics {
+    width: 100%;
+    height: 50%;
+    overflow-y: auto;
+    padding-right: 15px; /* Add space for the scrollbar width */
+    box-sizing: border-box;
+}
+
+#candidateStatistics::-webkit-scrollbar {
+    width: 8px;
+}
+
+#candidateStatistics::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+#candidateStatistics::-webkit-scrollbar-thumb {
+    background-color: #888888;
+    border-radius: 4px;
+}

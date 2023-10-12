@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta th:name="_csrf" th:content="${_csrf.token}" />
+	<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+	<title>Job Offers</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" th:href="@{/css/main.css}" />
+	<link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet" />
+	<link rel="icon" type="image/png" href="images/Logo-removebg-preview.png" />
+
+	  <!--AlertBox-->
+	  <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+
+	<style>
+		body {
+			background-color: whitesmoke;
+		}
+
+
+		.job-list {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-evenly;
+		}
+
+		.job-item {
+			width: 48%;
+			padding: 20px;
+			background-color: #fff;
+			border-radius: 5px;
+			margin-bottom: 20px;
+			/* margin-right: 20px; */
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			position: relative;
+		}
+
+		h2 {
+			font-size: 24px;
+			margin-bottom: 10px;
+		}
+
+		.location {
+			color: #888;
+			margin-bottom: 10px;
+		}
+
+		.salary {
+			color: #2ecc71;
+			margin-bottom: 10px;
+		}
+
+		.dates {
+			color: #888;
+			margin-bottom: 10px;
+		}
+
+		.vacancies {
+			color: #888;
+			margin-bottom: 10px;
+		}
+
+		.status {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			padding: 5px 10px;
+			border-radius: 5px;
+			color: #fff;
+			font-weight: bold;
+		}
+
+		.open {
+			background-color: #2ecc71;
+		}
+
+		.closed {
+			background-color: #e74c3c;
+		}
+
+		.search-btn {
+			display: inline-block;
+			background-color: #000000;
+			color: #fff;
+			padding: 20px 20px;
+			border: none;
+
+			transition: background-color 0.3s;
+		}
+
+		.bg-black {
+			background-color: #000;
+			color: #fff;
+			padding: 5px;
+			border-radius: 50%;
+		}
+
+		/* Advanced CSS animation using Animate.css */
+		.animated {
+			animation-duration: 1s;
+			animation-fill-mode: both;
+		}
+
+		.fadeIn {
+			animation-name: fadeIn;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.wrap {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.search {
+			margin-top: 20px;
+			position: relative;
+			display: flex;
+			align-items: center;
+			/* width: 20rem; */
+		}
+
+		.searchTerm {
+			width: 20rem;
+			padding: 7px 10px;
+			border-radius: 0 20px 20px 0;
+			outline: none;
+			color: #333;
+			border: 1px solid #333333;
+			border-left: none;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+
+		.searchButton {
+			width: 40px;
+			height: 40px;
+			border: none;
+			background-color: #333;
+			color: #fff;
+			border-radius: 20px 0 0 20px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			/* Updated box shadow */
+			cursor: none;
+		}
+
+		.fa-search {
+			font-size: 18px;
+		}
+
+		.select-menu {
+			width: 15rem;
+			margin: 20px auto;
+			position: relative;
+			/* Add this line */
+		}
+
+		.select-menu .select-btn {
+			display: flex;
+			height: 40px;
+			background: #fff;
+			padding: 20px 10px 20px 0;
+			font-size: 0.9rem;
+			font-weight: 400;
+			border-radius: 8px;
+			align-items: center;
+			cursor: pointer;
+			justify-content: space-between;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			/* Updated box shadow */
+		}
+
+		.select-btn i {
+			font-size: 25px;
+			transition: 0.3s;
+		}
+
+		.select-menu.active-show .select-btn i {
+			transform: rotate(-180deg);
+		}
+
+		.select-menu .options {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			padding: 10px;
+			margin-top: 10px;
+			border-radius: 8px;
+			background: #fff;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			display: none;
+			z-index: 1;
+			/* Custom scrollbar styles */
+			scrollbar-width: thin;
+			/* For Firefox */
+			scrollbar-color: #ccc transparent;
+			/* For Firefox */
+		}
+
+		.select-menu .options::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.select-menu .options::-webkit-scrollbar-thumb {
+			background-color: #ccc;
+			border-radius: 3px;
+		}
+
+		.select-menu .options::-webkit-scrollbar-thumb:hover {
+			background-color: #999;
+		}
+
+		.select-menu.active-show .options {
+			display: block;
+		}
+
+		.options {
+			max-height: 100px;
+			overflow-y: scroll;
+		}
+
+		.options .option {
+			display: flex;
+			height: 40px;
+			cursor: pointer;
+			padding: 0 16px;
+			border-radius: 8px;
+			align-items: center;
+			background: #fff;
+			transition: transform 0.2s ease;
+		}
+
+		.options .option:hover {
+			background: #f2f2f2;
+			transform: translateY(-5px);
+		}
+
+		.option i {
+			font-size: 25px;
+			margin-right: 12px;
+			transition: transform 0.2s ease;
+		}
+
+		.options .option:hover i {
+			transform: scale(1.1);
+		}
+
+		.option .option-text {
+			font-size: 0.9rem;
+			color: #333;
+			text-decoration: none;
+			transition: transform 0.2s ease;
+		}
+
+		.options .option:hover .option-text {
+			transform: translateY(-5px);
+		}
+
+		.label {
+			display: inline-block;
+			padding: 10px;
+			border-radius: 8px 0 0 8px;
+			background-color: #333333;
+			color: #ffff;
+		}
+
+		.error-message,
+		.no-data-message {
+			padding: 10px;
+			background-color: #ffdddd;
+			color: #ff0000;
+			border: 1px solid #ff0000;
+		}
+
+		/* Styling for the confirmation modal */
+		.confirmation-modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.8);
+			z-index: 9999;
+		}
+
+		.confirmation-modal-content {
+			position: absolute;
+			top: 45%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: #f9f9f9;
+			border: 1px solid #ccc;
+			padding: 30px;
+			max-width: 500px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+			border-radius: 5px;
+			animation: unfoldModal 0.3s forwards;
+		}
+
+		.custom-font-style {
+			font-weight: bolder;
+			font-style: italic;
+		}
+
+		.warning-container {
+			padding: 5px 10px;
+			background-color: #ffeeb5;
+			color: #85646c;
+			border-left: 5px solid #aa903a;
+			border-radius: 5px;
+		}
+
+		/* Styling for both modal buttons */
+		.modal-button {
+			padding: 10px 20px;
+			font-size: 16px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+
+		/* Styling for the "Cancel" button */
+		.cancel {
+			background-color: #e74c3c;
+			color: #fff;
+		}
+
+		/* Styling for the "Yes" button */
+		.confirm {
+			background-color: #2ecc71;
+			color: #fff;
+		}
+
+		/* Hover effect for both buttons */
+		button:hover {
+			opacity: 0.8;
+		}
+
+		/* Unfolding animation */
+		@keyframes unfoldModal {
+			0% {
+				transform: translate(-50%, -70%) scaleY(0);
+			}
+
+			100% {
+				transform: translate(-50%, -50%) scaleY(1);
+			}
+		}
+
+		.select-menu {
+			width: 18rem;
+		}
+
+		.red {
+			color: #e74c3c;
+		}
+		.green{
+			color: #2ecc71;;
+		}
+
+		.job-status{
+			font-size: 20px;
+			font-weight: 900;
+		}
+	</style>
+</head>
+
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<!-- Sidebar -->
+				<div th:replace="custom_fragments :: sidebar"></div>
+				<div class="col p-0">
+					<div class="fluid-container">
+						<!-- Main Header -->
+						<div th:replace="custom_fragments :: main-header"></div>
+						<!-- Main Content -->
+						<div class="main-content">
+							<div th:replace="jobDetail_Interview :: alertBox"></div>
+							<div
+								class="d-none"
+								data-notiType="interview"
+								th:data-noti="${notification}"
+								id="notification-message"
+							></div>
+							<main>
+								<div class="container pb-4">
+									<div class="row">
+										<div class="col-md-4">
+										  <div class="search">
+											<button type="button" class="searchButton" id="searchBtn"
+											  style="cursor: none">
+											  <i class="fa fa-search"></i>
+											</button>
+											<input type="text" class="searchTerm" id="searchQuery"
+											  placeholder="What are you looking for?" />
+										  </div>
+										  <div class="select-menu">
+											<div class="select-btn">
+											  <span class="label">Department</span>
+											  <span class="sBtn-text text-nowrap" id="department-filter">All</span>
+											  <i class="bx bx-chevron-down"></i>
+											</div>
+											<ul class="options">
+											  <li class="option">
+												<span th:data-value="All" class="option-text">All</span>
+											  </li>
+											  <li th:each="department : ${departments}" class="option">
+												<span th:data-value="${department.id}" class="option-text"
+												  th:text="${department.name}"></span>
+											  </li>
+											</ul>
+										  </div>
+										</div>
+										<div class="col-md-4">
+										  <div class="select-menu">
+											<div class="select-btn">
+											  <span class="label">Location</span>
+											  <span class="sBtn-text text-nowrap" id="location-filter">All</span>
+											  <i class="bx bx-chevron-down"></i>
+											</div>
+											<ul class="options">
+											  <li class="option">
+												<span th:data-value="All" class="option-text">All</span>
+											  </li>
+											  <li th:each="location : ${locations}" class="option">
+												<span th:data-value="${location}" class="option-text"
+												  th:text="${location}"></span>
+											  </li>
+											</ul>
+										  </div>
+										  <div class="select-menu">
+											<div class="select-btn">
+											  <span class="label">Position</span>
+											  <span class="sBtn-text text-nowrap" id="position-filter">All</span>
+											  <i class="bx bx-chevron-down"></i>
+											</div>
+											<ul class="options">
+											  <li class="option">
+												<span th:data-value="0" class="option-text">All</span>
+											  </li>
+											  <li th:each="jobTitle : ${jobTitle}" class="option">
+												<span th:data-value="${jobTitle.id}" class="option-text"
+												  th:text="${jobTitle.name}"></span>
+											  </li>
+											</ul>
+										  </div>
+										</div>
+										<div class="col-md-4">
+										  <div class="select-menu">
+											<div class="select-btn">
+											  <span class="label">Status</span>
+											  <span class="sBtn-text text-nowrap" id="status-filter">All</span>
+											  <i class="bx bx-chevron-down"></i>
+											</div>
+											<ul class="options">
+											  <li class="option">
+												<span th:data-value="All" class="option-text">All</span>
+											  </li>
+											  <li class="option">
+												<span th:data-value="OPEN" class="option-text">Open</span>
+											  </li>
+											  <li class="option">
+												<span th:data-value="CLOSED" class="option-text">Closed</span>
+											  </li>
+											</ul>
+										  </div>
+
+										  <div class="select-menu">
+											<div class="select-btn">
+											  <span class="label">Team</span>
+											  <span class="sBtn-text text-nowrap" id="team-filter">All</span>
+											  <i class="bx bx-chevron-down"></i>
+											</div>
+											<ul class="options">
+											  <li class="option">
+												<span th:data-value="All" class="option-text">All</span>
+											  </li>
+											  <li th:each="team : ${teams}" class="option">
+												<span th:data-value="${team.id}" class="option-text"
+												  th:text="${team.name}"></span>
+											  </li>
+											</ul>
+										  </div>
+								</div>
+								<hr />
+								<div class="container">
+									<h1 class="text-center mb-5">Job Openings</h1>
+									<hr />
+
+									<div class="job-list" id="job-list">
+										<!-- Jobs will dynamically add here-->
+									</div>
+								</div>
+								<hr />
+
+								<div class="container d-flex justify-content-center align-items-center">
+									<nav aria-label="Page navigation">
+										<ul class="pagination" id="pagination">
+											<!--pagination will be here-->
+										</ul>
+									</nav>
+								</div>
+
+								<!-- The delete confirmation modal -->
+								<div class="confirmation-modal" id="confirmationModal">
+									<div class="confirmation-modal-content">
+										<div class="confirmation-box-header">
+											<h2 class="text-center mb-3" style="font-weight: bolder">
+												Confirm Job Delete
+											</h2>
+										</div>
+										<p style="font-size: 19px">
+											Are you sure you want to delete this Job offer
+											<span id="test" style="font-weight: bolder; font-style: italic"></span>?
+										</p>
+										<div class="warning-container d-flex mb-3">
+											<div class="d-flex justify-content-center align-items-center">
+												<i class="fa-solid fa-triangle-exclamation me-3"></i>
+											</div>
+											<p class="mb-0" style="font-size: 18px">
+												Once you deleted it, you can't be undone.
+											</p>
+										</div>
+
+											<div
+												class="button-container d-flex justify-content-between"
+											>
+												<button
+													type="button"
+													id="cancelButtonModal"
+													class="modal-button confirm"
+												>
+													No, Cancel
+												</button>
+												<button
+													type="submit"
+													id="confirmUserCreation"
+													class="modal-button cancel"
+												>
+													Yes, Delete
+												</button>
+											</div>
+										</div>
+									</div>
+
+								<!-- The active confirmation modal -->
+								<div class="confirmation-modal" id="confirmationModalActive">
+									<div class="confirmation-modal-content">
+										<div class="confirmation-box-header">
+											<h2 class="text-center mb-3" style="font-weight: bolder">
+												Confirmation
+											</h2>
+										</div>
+										<p style="font-size: 19px">
+											Are you sure you want to
+											<span id="confirmationToggleText"
+												style="font-weight: bolder; font-style: italic"></span>
+											this Job Offer
+											<span class="username"
+												style="font-weight: bolder; font-style: italic"></span>?
+										</p>
+										<div class="warning-container d-flex mb-3">
+											<div class="d-flex justify-content-center align-items-center">
+												<i class="fa-solid fa-triangle-exclamation me-3"></i>
+											</div>
+											<p class="mb-0" style="font-size: 18px">
+												You can undo it later.
+											</p>
+										</div>
+
+										<div class="button-container d-flex justify-content-between">
+											<button type="button" id="cancelButtonModalActive"
+												class="modal-button confirm">
+												No, Cancel
+											</button>
+											<button type="submit" id="confirmClose" class="modal-button cancel">
+												Yes, Change
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<script
+									src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+								<script th:src="@{/js/main.js}"></script>
+								<!-- SockJS, STOMP, and Notification JS  -->
+								<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+								<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+								<script th:src="@{/js/websocket-listener.js}"></script>
+								<script th:src="@{/js/notification.js}"></script>
+								
+								<!-- Your existing HTML code for dropdown menus -->
+
+									<!--AlertBox-->
+     <script th:src="@{/js/alertBox.js}"></script>
+
+	 <script th:inline="javascript">
+		 var error =/*[[${error}]]*/ null;
+		 if (error != null) {
+			 togglePopupWarning(' !!', error);
+		 }
+	 </script>
+								<script>
+									let searchQuery = "";
+									let locationValue = "All";
+									let positionValue = 0;
+									let statusValue = "All";
+									let departmentValue = "All";
+									let teamValue = "All";
+
+									let message = "";
+									let dataNumber = 0;
+									let candidatesCount = 0;
+
+									var csrfToken = $("meta[name='_csrf']").attr("content");
+									var csrfHeader = $("meta[name='_csrf_header']").attr(
+										"content"
+									);
+
+									var JobStatuses = {};
+
+									function formatDate(date) {
+										const year = date.getFullYear();
+										const month = String(date.getMonth() + 1).padStart(
+											2,
+											"0"
+										);
+										const day = String(date.getDate()).padStart(2, "0");
+										const hours = String(date.getHours()).padStart(2, "0");
+										const minutes = String(date.getMinutes()).padStart(
+											2,
+											"0"
+										);
+										const seconds = String(date.getSeconds()).padStart(
+											2,
+											"0"
+										);
+
+										return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+									}
+
+									const date = new Date();
+									console.log(date);
+									const formattedCurrentDate = formatDate(date);
+									console.log(formattedCurrentDate); // Output: "2023-08-16 12:30:45"
+
+									// Function to open the confirmation modal
+									function openConfirmationModal(id, JobTitle, jobLevel) {
+										let title = jobLevel + " " + JobTitle;
+										$("#test").text(title);
+										var deleteUrl = "/mng/your-job-delete-id/" + id; // Replace with your backend endpoint for deleting a job
+										$("#confirmUserCreation").on("click", function () {
+											window.location.href = deleteUrl;
+											hideModal();
+										});
+
+										$("#confirmationModal").show(); // Show the modal box
+									}
+
+									// Function to hide the modal box
+									function hideModal() {
+										$("#confirmationModal").fadeOut();
+									}
+
+									$(document).on("click", function (event) {
+										var confirmationModal = $("#confirmationModal");
+										if ($(event.target).is(confirmationModal)) {
+											hideModal();
+										}
+									});
+
+									// Function to handle the "No, Cancel" button click
+									$("#cancelButtonModal").on("click", function () {
+										hideModal(); // Hide the modal box if the user clicks "No, Cancel"
+									});
+
+									function openActiveConfirmationModal(
+										jobDetailId,
+										jobTitle,
+										jobLevel,
+										formattedCurrentDate,
+										expireDate
+									) {
+										let job = jobLevel + " " + jobTitle;
+
+										var currentDate = new Date(formattedCurrentDate);
+										var expirationDate = new Date(expireDate);
+										console.log(expireDate);
+
+										console.log("type of expirationDate " + expirationDate);
+										console.log(
+											"type of formattedCurrentDate " + currentDate
+										);
+
+										//var status = JobStatuses[id]; // Get the status from the userStatuses object
+										var toggleText =
+											currentDate > expirationDate ? "Open" : "Closed";
+										console.log("toggle2 " + toggleText);
+										$("#confirmationToggleText").text(toggleText);
+										$(".username").text(job); // Update the username inside the modal
+
+										// Set the text of the .status-text span based on the status value
+										//var statusText = status ? "will not be" : "will be";
+										//$(".status-text").text(statusText);
+
+										$("#confirmClose")
+											.off("click")
+											.on("click", function () {
+												// Prepare form data with the id and status
+												var formData = new FormData();
+												formData.append("id", jobDetailId);
+
+												// Make an Ajax POST request to your backend to change user permission
+												$.ajax({
+													url: "/mng/job-details/change-job-status", // Replace with your backend endpoint for enabling/disabling a user
+													type: "POST", // Use POST for sending data to the server
+													data: formData, // Send the form data containing the id and status
+													processData: false, // Prevent jQuery from processing the data
+													contentType: false, // Set the content type to false, so jQuery will not add a content type header
+													// Set the CSRF token in the headers of the request
+													beforeSend: function (xhr) {
+														xhr.setRequestHeader(csrfHeader, csrfToken);
+													},
+													success: function (response) {
+														console.log("Success:", response);
+														hideModalActive();
+
+														updateMessage();
+														fetchJobs(dataNumber + 1);
+													},
+													error: function (error) {
+														// Handle errors (if any)
+														console.error("Error:", error);
+													},
+												});
+											});
+
+										$("#confirmationModalActive").show(); // Show the modal box
+									}
+
+									// Function to hide the modal box
+									function hideModalActive() {
+										$("#confirmationModalActive").fadeOut();
+									}
+
+									$(document).on("click", function (event) {
+										var confirmationModalActive = $(
+											"#confirmationModalActive"
+										);
+										if ($(event.target).is(confirmationModalActive)) {
+											hideModalActive();
+										}
+									});
+
+									// Function to handle the "No, Cancel" button click
+									$("#cancelButtonModalActive").on("click", function () {
+										hideModalActive(); // Hide the modal box if the user clicks "No, Cancel"
+									});
+
+									function redirectToEditPage(id) {
+										// Use window.location.href to navigate to the edit endpoint with the row.id included
+
+										window.location.href = "/mng/users/edit/" + id;
+									}
+
+									async function Count(jobDetailId) {
+										try {
+											const response = await fetch(
+												`/mng/getCandidatesCount?jobId=${jobDetailId}`
+											);
+
+											if (!response.ok) {
+												throw new Error(
+													"Can't get the count. Something's wrong on the server"
+												);
+											}
+
+											const data = await response.json();
+											candidatesCount = data;
+										} catch (error) {
+											console.error(error);
+										}
+									}
+
+									const searchBox = document.getElementById("searchQuery");
+									const optionMenus =
+										document.querySelectorAll(".select-menu");
+									const searchButton = document.getElementById("searchBtn");
+
+									searchBox.addEventListener("input", function () {
+										searchQuery = searchBox.value; // Get the value from the input field
+
+										updateMessage();
+										fetchJobs(dataNumber + 1);
+										message = ""; // clear messsage value
+									});
+
+									optionMenus.forEach((optionMenu) => {
+										const selectBtn = optionMenu.querySelector(".select-btn");
+										const sBtn_text = optionMenu.querySelector(".sBtn-text");
+										const options = optionMenu.querySelectorAll(".option");
+
+										selectBtn.addEventListener("click", () => {
+											optionMenu.classList.toggle("active-show");
+										});
+
+										options.forEach((option) => {
+											option.addEventListener("click", () => {
+												let selectedOption =
+													option.querySelector(".option-text").textContent;
+
+												let dataValue = option
+													.querySelector(".option-text")
+													.getAttribute("data-value");
+												let filterType =
+													selectBtn.querySelector(".label").textContent;
+
+												if (filterType === "Location") {
+													locationValue = dataValue;
+												} else if (filterType === "Position") {
+													positionValue = dataValue;
+												} else if (filterType === "Status") {
+													statusValue = dataValue;
+												} else if (filterType === "Department") {
+													departmentValue = dataValue;
+												} else if (filterType === "Team") {
+													teamValue = dataValue;
+												}
+
+												sBtn_text.innerText = selectedOption;
+												sBtn_text.setAttribute("data-value", dataValue);
+												optionMenu.classList.remove("active-show");
+												updateMessage();
+												fetchJobs(dataNumber + 1);
+												message = ""; // clear messsage value
+											});
+										});
+									});
+
+									function updateMessage() {
+										if (searchQuery.trim().length !== 0) {
+											message += `&searchQuery=${searchQuery}`;
+										}
+										if (locationValue !== "All") {
+											message += `&location=${locationValue}`;
+										}
+										if (positionValue != 0) {
+											message += `&position=${positionValue}`;
+										}
+										if (statusValue !== "All") {
+											message += `&status=${statusValue}`;
+										}
+										if (departmentValue !== "All") {
+											message += `&department=${departmentValue}`;
+										}
+										if (teamValue !== "All") {
+											message += `&team=${teamValue}`;
+										}
+									}
+
+									function isUserAuthorized(user) {
+										const userRole = document.getElementById("user-role");
+										const username = userRole.dataset.username;
+										const role = userRole.innerText;
+										const isInterviewer = role.includes("DEPARTMENT_HEAD") || role.includes("TEAM_LEADER");
+
+										return !isInterviewer || username == user;
+									}
+
+									// Fetch jobs from the server and display them on the page
+									async function fetchJobs(page) {
+										try {
+											const response = await fetch(
+												`/mng/getJobs?pageNo=${page}${message}`
+											);
+											if (!response.ok) {
+												throw new Error("Network response was not ok");
+											}
+											const data = await response.json();
+											console.log(data);
+
+											const jobListContainer =
+												document.getElementById("job-list");
+											jobListContainer.innerHTML = ""; // clear the container
+
+											const pagination =
+												document.getElementById("pagination");
+											pagination.innerHTML = ""; // Clear the pagination
+
+											if (data.content.length === 0) {
+												const noDataMessage = document.createElement("div");
+
+												noDataMessage.className = "no-data-message";
+												noDataMessage.textContent =
+													"There are no available job positions at this time. Keep an eye out for future opportunities!";
+												jobListContainer.appendChild(noDataMessage);
+												pagination.innerHTML = "";
+												return;
+											}
+
+											const totalPages = data.totalPages;
+											const currentPage = data.number + 1;
+
+											// Display previous page link
+											const prevPageItem = document.createElement("li");
+											prevPageItem.className =
+												"page-item" + (data.first ? " disabled" : "");
+											prevPageItem.innerHTML = `
+					    <a href="#" class="page-link" aria-label="Previous" onclick="fetchJobs(${currentPage - 1
+												}); return false;">
+					        <span aria-hidden="true">&laquo;</span>
+					    </a>
+					`;
+											pagination.appendChild(prevPageItem);
+
+											// Display pages
+											for (let i = 1; i <= totalPages; i++) {
+												if (
+													i === 1 ||
+													i === totalPages ||
+													(i >= currentPage - 2 && i <= currentPage + 2)
+												) {
+													const pageItem = document.createElement("li");
+													pageItem.className =
+														"page-item" +
+														(currentPage === i ? " active" : "");
+													pageItem.innerHTML = `
+					            <a href="#" class="page-link" onclick="fetchJobs(${i}); return false;">${i}</a>
+					        `;
+													pagination.appendChild(pageItem);
+												} else if (
+													i === currentPage - 3 ||
+													i === currentPage + 3
+												) {
+													const ellipsisItem = document.createElement("li");
+													ellipsisItem.className = "page-item disabled";
+													ellipsisItem.innerHTML = `
+					            <span class="page-link">&hellip;</span>
+					        `;
+													pagination.appendChild(ellipsisItem);
+												}
+											}
+
+											// Display next page link
+											const nextPageItem = document.createElement("li");
+											nextPageItem.className =
+												"page-item" + (data.last ? " disabled" : "");
+											nextPageItem.innerHTML = `
+													<a href="#" class="page-link" aria-label="Next" onclick="fetchJobs(${currentPage + 1
+												}); return false;">
+														<span aria-hidden="true">&raquo;</span>
+													</a>
+												`;
+											pagination.appendChild(nextPageItem);
+
+											for (const job of data.content) {
+												await Count(job.id);
+
+												console.log(
+													"data - " +
+													job.expireDate +
+													" type of - " +
+													typeof job.expireDate
+												);
+
+												const isAuthorized = isUserAuthorized(job.team.department.departmentHead.username) || isUserAuthorized(job.team.teamLeader);
+
+												const expDate = new Date(job.expireDate);
+												const now = new Date();
+
+												console.log("data - " + now);
+												
+												let candidateCountBtn = isAuthorized ? `<button
+															type="button"
+															class="btn btn-primary dropdown-toggle"
+															data-bs-toggle="dropdown"
+															aria-expanded="false"
+															>
+															<i class="fas fa-users me-2"></i>&nbsp;${candidatesCount}
+															</button>`
+															: 
+															`<button
+															type="button"
+															class="btn btn-secondary dropdown-toggle"
+															>
+															<i class="fas fa-users me-2"></i>&nbsp;${candidatesCount}
+															</button>`;
+
+												let editBtn = isAuthorized ? `<a href="/mng/job-details/${job.id}" class="btn btn-secondary">
+															<i class="fa-solid fa-pen-to-square"></i>
+														</a>` : `<a class="btn btn-secondary">
+															<i class="fa-solid fa-pen-to-square"></i>
+														</a>`;
+
+												let deleteBtn = isAuthorized ? `<a href="#" onclick="openConfirmationModal(${job.id}, '${job.jobTitle.name}', ${job.jobLevel !== null
+														? `'${job.jobLevel.name}'`
+														: "''"
+													})" class="btn btn-danger">
+												<i class="fa-solid fa-trash-can"></i>
+												</a>` : `<a class="btn btn-secondary">
+													<i class="fa-solid fa-trash-can"></i>
+														</a>`;
+
+												let closeOpenBtn = isAuthorized ? `<button id="#statusButton_${job.id}" onclick="openActiveConfirmationModal(${job.id
+													}, '${job.jobTitle.name}', ${job.jobLevel !== null
+														? `'${job.jobLevel.name}'`
+														: "''"
+													}, '${date}', '${job.expireDate}')" class="btn btn-secondary">
+													<i class="fa-solid fa-power-off"></i>
+												</button>` : `<button id="#statusButton_${job.id}" class="btn btn-secondary">
+													<i class="fa-solid fa-power-off"></i>
+												</button>`;
+												
+												const jobItem = document.createElement("div");
+												jobItem.className = "job-item animated fadeIn";
+												jobItem.innerHTML = `
+														<h2>
+														<i class="fas fa-code bg-black"></i>
+														<span>${job.jobLevel !== null ? job.jobLevel.name : ""}</span>
+														<span>${job.jobTitle.name}</span>
+														</h2>
+														<p class="location">
+														<i class="fas fa-map-marker-alt"></i>
+														${job.location.building}, ${job.location.township}, ${job.location.division}
+														</p>
+														<p class="salary">
+														<i class="fas fa-money-bill"></i> Salary: ${job.salary}
+														</p>
+														<p class="dates">
+														<i class="fas fa-calendar-check"></i> Open:
+														${new Date(job.openDate).toLocaleDateString("en-US", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+												})}
+														- <i class="fas fa-calendar-times"></i> Closed:
+														${new Date(job.expireDate).toLocaleDateString("en-US", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+												})}
+														</p>
+														<p class="vacancies">
+														<i class="fas fa-users"></i> <span>${job.posts}</span> posts available
+														</p>
+														<p class="vacancies">
+																<i class="fas fa-briefcase"></i> <span>${job.jobType.name}</span>
+															</p>
+														<p class="vacancies">
+														<i class="fas fa-user-plus"></i> Created By: <span>${job.createdBy.name
+													}</span> - <i class="fas fa-user-edit"></i> Last Updated By: <span>${job.lastUpdatedBy.name
+													}</span>
+														</p>
+														
+														<p class="vacancies">
+															<i class="fa-solid fa-people-group"></i> Team: <span>${job.team.name
+													}</span>
+														</p>
+														<p class="vacancies">
+															<i class="fa-solid fa-building"></i> Department: <span>${job.team.department.name
+													}</span>
+														</p>
+														<p class="status ${expDate > now ? "open" : "closed"}">
+																<span>${expDate > now ? "Open" : "Closed"}</span>
+															</p>
+														
+														
+														
+														<div class="d-flex justify-content-between">
+															<div class="btn-group dropup">
+                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users me-2"></i>&nbsp;${candidatesCount}
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <a class="dropdown-item" href="/mng/jobOffer/${
+                                      job.id
+                                    }">
+                                <i class="fas fa-users me-2"></i>
+                                <!-- Icon -->
+                                Applicants
+                              </a>
+                            </li>
+                            <li>
+                              <a class="dropdown-item" href="/mng/interview/jobDetailInterview/${
+                                      job.id
+                                    }">
+                                <i class="fa-solid fa-clipboard-question me-2"></i>
+                                <!-- Icon -->
+                                Interviews
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+														${editBtn}
+														${deleteBtn}
+
+														${closeOpenBtn}
+
+
+
+														
+														
+														</div>
+														
+													`;
+
+												jobListContainer.appendChild(jobItem);
+											}
+										} catch (error) {
+											console.error("Error:", error);
+											// rest of your code...
+										}
+									}
+
+									// Fetch the first page of jobs when the page loads
+									fetchJobs(dataNumber + 1);
+								</script>
+								<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+									integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+									crossorigin="anonymous"></script>
+								<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+									integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+									crossorigin="anonymous"></script>
+								
+							</div>
+						</main>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

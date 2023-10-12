@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemalocation="http://www.thymeleaf.org ">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates</title>
+
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+    <!-- Date Picker CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <!-- Candidates-->
+    <link rel="stylesheet" th:href="@{/css/candidates.css}">
+
+    <!--Base-->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <!--AlertBox-->
+    <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+    <link rel="stylesheet" href="/css/popUp.css">
+    <link rel="stylesheet" href="/css/interviewCreate.css">
+    <link rel="stylesheet" href="/css/loading_mail.css">
+    <link rel="stylesheet" href="/css/interview.css">
+
+    <!-- Fragments CSS -->
+    <meta th:name="_csrf" th:content="${_csrf.token}" />
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+
+	<style>
+		th, td { white-space: nowrap; }
+    div.dataTables_wrapper {
+        margin: 0 auto;
+    }
+ 
+    div.container {
+        width: 90%;
+    }
+	</style>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div th:replace="custom_fragments :: sidebar"></div>
+            <div class="col p-0">
+                <div class="fluid-container">
+                    <!-- Main Header -->
+                    <div th:replace="custom_fragments :: main-header"></div>
+                    <!-- Main Content -->
+                    <div class="main-content">
+                        <!-- Write your code or content here -->
+
+                        <!-- this is alert box-->
+                        <div th:replace="jobDetail_Interview :: alertBox"></div>
+
+                        <!-- Confirm box modal for interview result -->
+                        <div th:fragment="interviewResultConfirmBox">
+                            <div class="modal fade" id="confirm-interview-result-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-danger">Confirm</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="fs-5">Are you sure for job offer mail?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button onclick="togglePopupEmail()" class="btn btn-danger"
+                                                data-bs-dismiss="modal">Ok</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--modal box for mail alert when interview result in not passed-->
+                        <div class="modal fade" id="check-interview-result-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-danger">Warning !!</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="fs-5">This Candidate's interview haven't passed yet !!</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- popup show for mail send -->
+                        <div th:fragment="jobOfferMail">
+                        <div id="popupDivEmail" class="popup-div">
+                            <div class="d-flex justify-content-end">
+                                <span><i class="fa-solid fa-xmark fa-lg popup-close-button"
+                                        onclick="closePopUpEmail()"></i></span>
+                            </div>
+                            <form method="post" th:action="@{/mng/mail/sendJobOfferMail}" th:object="${emailTemplate}"
+                                enctype="multipart/form-data">
+                                <div class="col container">
+
+                                    <!--to send candidate id and interview id-->
+                                    <input type="hidden" name="candidateId" id="sendMailCandidateId">
+                                    <!--for check which page to redirect-->
+                                    <input type="hidden" id="pageRedirect" name="redirectPage">
+                                    <div>
+                                        <div class="row mb-2 border-bottom">
+                                            <div class="col col-1">
+                                                <span>From</span>
+                                            </div>
+                                            <div class="col col-1">:</div>
+                                            <div class="col col-5">
+                                                <input type="text" name="adminEmail" id="fromEmail"
+                                                    onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                                                    onkeyup="validateFromMail()" class="custom-input" />
+                                            </div>
+                                            <div class="error col-5" id="fromMailError"></div>
+                                        </div>
+                                        <div class="row mb-2 border-bottom">
+                                            <div class="col col-1">To</div>
+                                            <div class="col col-1">:</div>
+                                            <div class="col col-5">
+                                                <input type="text" name="candidateEmail" id="toEmail"
+                                                    onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                                                    onkeyup="validateToMail()" class="custom-input" />
+                                            </div>
+                                            <div class="error col-5" id="toMailError"></div>
+                                        </div>
+                                        <div class="row mb-2 border-bottom">
+                                            <div class="col col-1">Subject</div>
+                                            <div class="col col-1">:</div>
+                                            <div class="col col-5">
+                                                <input type="text" th:field="*{subject}" name="emailSubject"
+                                                    onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                                                    onkeyup="validateSubject()" id="subject" class="custom-input" />
+                                            </div>
+                                            <div class="error col-5" id="subjectError"></div>
+                                            <p th:errors="*{subject}"></p>
+                                        </div>
+                                    </div>
+
+                                    <textarea name="textArea2" th:field="*{bodyText}" id="interviewMail"
+                                        class="mb-2"></textarea>
+
+                                    <div class="error" id="emailMessageError"></div>
+                                    <div class="col-md-8 form-group mb-3 mt-4">
+                                        <select class="customSelect rounded-2" id="typeSelect" name="emailTypeId">
+                                            <option value="Choose" th:selected>Choose...</option>
+                                            <option th:each="type : ${emailTypeListByJobOffer}" th:text="${type.name}"
+                                                th:value="${type.id}" th:selected="${emailTypeId == type.id}"></option>
+                                        </select>
+                                        <label for="budget" class="col-form-label " style="margin-right: 2rem;">Email
+                                            Type</label>
+                                    </div>
+
+                                    <div class="mt-1">
+                                        <label for="fileInput" class="btn btn-primary mb-1">
+                                            <input type="file" name="attachments" id="fileInput" multiple />
+                                            Attachment Files
+                                        </label>
+                                        <span id="fileCountLabel"></span>
+                                    </div>
+                                    <div class="error" id="attachmentFileError"></div>
+                                    <!--to send file is empty -->
+                                    <input type="hidden" id="attachments" name="nullAttachment">
+
+
+                                    <div class="row justify-content-center mt-5">
+                                        <div class="col-md-2 form-group mb-3">
+                                            <input type="button" onclick="closePopUpEmail()" value="Cancel"
+                                                class="btn btn-danger  py-2 px-4">
+                                            <span class="submitting"></span>
+                                        </div>
+
+                                        <div class="col-md-3 form-group mb-3">
+                                            <input type="submit" id="send" onclick="return validateSendInterviewMail()"
+                                                value="Send" class="btn btn-success  py-2 px-4">
+                                        </div>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+
+                        <div class="col">
+                            <!-- <p>
+                                စုစုပေါင်း Candidate : <span th:text="${candidates}"></span> ယောက်
+                            </p> -->
+                            <h3>
+                                All Candidates
+                            </h3>
+
+                        </div>
+
+                        <div class="col-2">
+                            <a class="btn btn-outline-secondary" id="clear">Clear Filters</a>
+                        </div>
+
+                        <div class="col-5">
+
+                            <button class="btn btn-outline-dark" type="button" data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">View
+                                Statistics</button>
+
+                            <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false"
+                                tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+                                <div class="offcanvas-header">
+                                    <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Candidate Statistics
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <p>Total Candidates: <span th:text="${candidates}"></span></p>
+                                    <p>New Candidates (<span id="currentMonth"></span>): <span
+                                            th:text="${candidates}"></span></p>
+                                    <div id="chart_div"></div>
+
+                                </div>
+                            </div>
+
+                            <a class="btn btn-outline-dark" href="/mng/candidate/download-all">All CVs <i
+                                    class="fas fa-download"></i></a>
+                            <a class="btn btn-outline-dark" id="download">Filtered CVs <i
+                                    class="fas fa-download"></i></a>
+                            <a class="btn btn-outline-dark" id="filter">Selected CVs <i class="fas fa-download"></i></a>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <hr>
+                    <!--filters-->
+                    <div class="d-flex overflow-auto p-2 filter-container">
+                        <!-- Job Title -->
+                        <div class="col-md-2 me-4">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="title">Title:</label>
+                                <select class="col form-select" name="title" id="title">
+                                    <option value="">ALL</option>
+                                    <th:block th:each="jobTitle: ${jobTitle}">
+                                        <option th:value="${jobTitle.name}" th:text="${jobTitle.name}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!--Department-->
+                        <!-- <div class="col-md-2 me-4">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="department">Department:</label>
+                                <select class="col form-select" name="department" id="department">
+                                    <option value="">ALL</option>
+                                    <th:block th:each="department: ${department}">
+                                        <option th:value="${department.name}" th:text="${department.name}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div> -->
+
+                        <!--Team-->
+                        <!-- <div class="col-md-2 me-4">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="team">Team:</label>
+                                <select class="col form-select" name="team" id="team">
+                                    <option value="">ALL</option>
+                                    <th:block th:each="team: ${team}">
+                                        <option th:value="${team.name}" th:text="${team.name}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div> -->
+
+                        <!-- Job Level -->
+                        <div class="col-md-2">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="level">Level:</label>
+                                <select class="col form-select" name="level" id="level">
+                                    <option value="">ALL</option>
+                                    <th:block th:each="jobLevel: ${jobLevel}">
+                                        <option th:value="${jobLevel.name}" th:text="${jobLevel.name}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="col-md-4">
+                            <div class="row d-flex justify-content-center">
+                                <label class="col col-auto col-form-label" for="date-range">Date Range:</label>
+                                <!-- Date Range Picker Start -->
+                                <div id="daterange" class="col col-auto col-form-label">
+                                    <i class="fa fa-calendar"></i>&nbsp;
+                                    <input id="min-date" type="hidden" value="">
+                                    <input id="max-date" type="hidden" value="">
+                                    <span id="selected-daterange"></span>
+                                    <i class="fa fa-caret-down"></i>
+                                </div>
+                                <!-- Date Range Picker End -->
+                            </div>
+                        </div>
+
+                        <!-- CV -->
+                        <div class="col-md-2 me-4">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="cv">CV:</label>
+                                <select class="col form-select" name="cv" id="cv">
+                                    <option value="">ALL</option>
+                                    <option value="0">Received</option>
+                                    <option value="1">Viewed</option>
+                                    <option value="2">Considering</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Interview -->
+                        <!-- <div class="col-md-2 me-4">
+                                        <div class="row">
+                                            <label class="col col-auto col-form-label" for="interview">Interview:</label>
+                                            <select class="col form-select" name="interview" id="interview">
+                                                <option value="">ALL</option>
+                                                <option value="0">Not Interviewed</option>
+                                                <option value="1">Pending</option>
+                                                <option value="2">Passed</option>
+                                                <option value="3">Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div> -->
+
+                        <!-- Job Offer -->
+                        <div class="col-md-2 me-4">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="job-offer">Job Offer:</label>
+                                <select class="col form-select" name="job-offer" id="job-offer">
+                                    <option value="">ALL</option>
+                                    <option value="0">Not Offered</option>
+                                    <option value="1">Offered</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="" id="job-accept-id">
+                        <!-- Job Accepted -->
+                        <div class="col-md-2">
+                            <div class="row">
+                                <label class="col col-auto col-form-label" for="job-accepted">Job Accepted:</label>
+                                <select class="col form-select" name="job-accepted" id="job-accepted">
+                                    <option value="">ALL</option>
+                                    <option value="0">Not Accepted</option>
+                                    <option value="1">Accepted</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!--table-->
+
+                    <table class=" w-100 table col display nowrap" style="width: 100%;" id="example">
+                        <thead>
+                            <tr>
+
+                                <th scope="col-1">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Job Applied</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Application Date</th>
+                                <th scope="col">Summary</th>
+                                <th scope="col">Download CV</th>
+                                <!--Scanning-->
+                                <th scope="col">CV Scanning</th>
+                                <!--Status-->
+                                <th scope="col">Interview</th>
+                                <th scope="col">Job Offer Status</th>
+                                <th scope="col">Job Offer</th>
+                                <th scope="col">Job Accepted</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Team</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- loading -->
+                <div class="loading-animation" id="loadingAnimation">
+                    <div class="loader"></div>
+                </div>
+
+                <!-- Job accepted disabled modal -->
+                  
+            <div class="modal fade" id="job-accept-disabled-modal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="text-danger fs-3">Cannot change</div>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="fs-5">Job offer mail has not been sent.</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+  
+  
+              <!-- Confirm job accepted modal -->
+                    
+                <div class="modal fade" id="change-job-accept-modal">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="text-primary fs-3">Confirm Change</div>
+                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="fs-5">Are you sure to toggle the status of job acception?</div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button class="btn btn-primary" data-bs-dismiss="modal" onclick="changeJobAccepted()">Change</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <!-- Modal -->
+                <div class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="candidateModalLabel">Candidate Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-address-card me-1"></i>Name:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-square-phone me-1"></i>Phone
+                                                    Number:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-square-envelope me-1"></i>Email:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-location-dot me-1"></i>Address:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-dollar-sign me-1"></i>Expected
+                                                    Salary:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i
+                                                        class="fa-solid fa-hourglass-half me-1"></i>Experience:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-user-graduate me-1"></i>Education:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-venus-mars me-1"></i>Sex:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-gears me-1"></i>Technical
+                                                    Skills:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-language me-1"></i>Language
+                                                    Skills:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-star me-1"></i>Main Skill:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-regular fa-calendar-days me-1"></i>Date of
+                                                    Birth:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-regular fa-id-badge me-1"></i>Applied
+                                                    Position:</strong></p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+                                    <div class="row ms-5">
+                                        <div class="col-md-4">
+                                            <p><strong><i class="fa-solid fa-layer-group me-1"></i>Level:</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col ms-auto"><span></span></div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!--JQuery-->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <!--Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+        
+    <script th:src="@{/js/main.js}"></script>
+    <!-- SockJS, STOMP, and Notification JS  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+    <script th:src="@{/js/websocket-listener.js}"></script>
+    <script th:src="@{/js/notification.js}"></script>
+
+    
+    <!--DataTable JS + Buttons + Bootstrap-->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+
+    <!--PDF + buttons-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <!--Button ColVis-->
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
+    <!-- Select -->
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+
+    <!-- Date Picker JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    
+    
+    <script th:src="@{/js/tinymce.min.js}"></script>
+    <!--AlertBox-->
+    <script th:src="@{/js/alertBox.js}"></script>
+    <script th:src="@{/script.js}"></script>
+
+    <script th:inline="javascript">
+        const mailException =/*[[${mailException}]]*/ null;
+        const mailSuccess =/*[[${mailSuccess}]]*/ null;
+
+        //show alert box when mail exception have
+        if (mailException != null) {
+            togglePopupDanger("Mail", mailException);
+        }
+        if (mailSuccess != null) {
+            togglePopupSuccess("Mail", mailSuccess);
+        }
+    </script>
+    <script th:src="@{js/candidateMail.js}"></script>
+    <script>
+        const token = $("meta[name='_csrf']").attr("content");
+    const header = $("meta[name='_csrf_header']").attr("content");
+    // Job accepted button listeners
+    function changeJobAccepted() {
+          const candId = document.getElementById("job-accept-id").value;
+          fetch('/mng/candidate/change-job-accepted-status/' + candId, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                [header]: token,
+                'X-XSRF-Token': token
+              }
+            }).then(resp => {
+              if(resp.status == 200) {
+                togglePopupSuccess("Success", "Job accepted status is changed successfully.")
+                const jobAcceptBtn = $(`#${candId}.job-accept-btn`);
+                jobAcceptBtn.toggleClass("fa-square-check");
+                jobAcceptBtn.toggleClass("text-success");
+                jobAcceptBtn.toggleClass("fa-square-xmark");
+                jobAcceptBtn.toggleClass("text-danger");
+              } else {
+                togglePopupDanger("Failed", "Failed to change the job accepted status.")
+              }
+            })
+        }
+        
+        //for mail popUp
+        function togglePopupEmail() {
+            popupDivEmail.classList.toggle("show");
+
+        }
+        var subject = document.getElementById('subject');
+        var sendMailCandidateId = document.getElementById('sendMailCandidateId');
+        var pageRedirect = document.getElementById('pageRedirect');
+        var messageError = document.getElementById('emailMessageError');
+        var checkInterviewResultModal = new bootstrap.Modal(document.getElementById("check-interview-result-modal"));
+        var confirmInterviewResultModal = new bootstrap.Modal(document.getElementById("confirm-interview-result-modal"));
+        //function for prevent space input
+        function preventSpace(event) {
+            const inputElement = event.target;
+            const value = inputElement.value;
+            const firstChar = value.charAt(0);
+
+            if (event.keyCode === 32 && firstChar === '') {
+                event.preventDefault();
+            }
+        }
+
+        //function for remove space
+        function removeLeadingSpace(event) {
+            const inputElement = event.target;
+            const value = inputElement.value;
+            const newValue = value.replace(/^\s+/, ""); // Remove leading spaces
+            inputElement.value = newValue;
+        }
+
+
+
+        function closePopUpEmail() {
+            var editor = tinymce.get('interviewMail');
+            subject.value = null;
+            toEmail.value = null;
+            editor.setContent('');
+            fileInput.value = '';
+            fileCountLabel.innerHTML = '';
+            popupDivEmail.classList.toggle("show");
+        }
+
+        //for reshow error when send mail
+        var setErrorMail = (element, message) => {
+            element.innerHTML = message;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 4000);
+        }
+
+        function validateFromMail() {
+            if (fromEmail.value.length == 0) {
+                setErrorMail(fromMailError, 'Mail is required !!');
+                return false;
+            }
+            return true;
+
+        }
+
+        function validateToMail() {
+            if (toEmail.value.length == 0) {
+                setErrorMail(toMailError, 'Candidate mail is requierd !!')
+                return false;
+            }
+            return true;
+        }
+
+        function validateSubject() {
+            if (subject.value === null || subject.value === '') {
+                setErrorMail(subjectError, 'Email subject name is required !!')
+                return false;
+            }
+            if (subject.value.length > 200) {
+                setErrorMail(subjectError, 'Email subject name must be within 200 characters !!');
+                return false;
+            }
+            return true;
+        }
+
+        //validation function for interview send mail
+        function validateSendInterviewMail() {
+            if (!validateFromMail() || !validateToMail()) {
+                return false;
+            }
+            if (!fromEmail.value.match(/^[A-Za-z]*[0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                setErrorMail(fromMailError, 'Invalid Email !!')
+                return false;
+            }
+            if (!toEmail.value.match(/^[A-Za-z]*[0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                setErrorMail(toMailError, 'Invalid Email !!')
+                return false;
+            }
+            if (!validateSubject()) {
+                return false;
+            }
+            var editor = tinymce.get('interviewMail');
+            var parser = new DOMParser();
+            var htmlDoc = parser.parseFromString(editor.getContent(), "text/html");
+            var textContent1 = htmlDoc.body.textContent;
+            if (textContent1 === '' || textContent1.trim() === '') {
+                console.log('hihihhih')
+                setErrorMail(messageError, 'Please insert email message !!')
+                return false;
+            }
+            if (fileInput.value.length < 1) {
+                attachments.value = 'Null';
+            }
+            else {
+                attachments.value = 'NotNull';
+            }
+            var files = fileInput.files;
+            for (var i = 0; i < files.length; i++) {
+                var fileSize = Math.round(files[i].size / 1024);
+                if (fileSize > 1024 * 10) {
+                    // alert('File ' + files[i].name + ' is greater than 2MB');
+                    setErrorMail(attachmentFileError, 'File ' + files[i].name + ' is greater than 10MB')
+                    return false;
+                }
+            }
+            $("#loadingAnimation").css("display", "flex");
+            return true;
+        }
+
+        //to show attachment file count
+        document.addEventListener("DOMContentLoaded", function () {
+            var fileInput = document.getElementById("fileInput");
+            var fileCountLabel = document.getElementById("fileCountLabel");
+
+            fileInput.addEventListener("change", function () {
+                var selectedFiles = fileInput.files;
+                fileCountLabel.textContent = selectedFiles.length + " files selected";
+            });
+        });        
+    </script>
+    <script th:inline="javascript">
+        var error =/*[[${error}]]*/ null;
+        if (error != null) {
+            togglePopupWarning(' !!', error);
+        }
+    </script>
+    </script>
+
+
+    <!-- CSRF -->
+    <script th:inline="javascript">
+        // Functions to check authorization
+        function isAuthorizedInterviewer(user) {
+            const userRole = document.getElementById("user-role");
+            const username = userRole.dataset.username;
+            const role = userRole.innerText;
+            const isInterviewer = role.includes("DEPARTMENT_HEAD") || role.includes("TEAM_LEADER");
+
+            return isInterviewer && username == user;
+        }
+
+        function isUserAuthorized(user) {
+            const userRole = document.getElementById("user-role");
+            const username = userRole.dataset.username;
+            const role = userRole.innerText;
+            const isInterviewer = role.includes("DEPARTMENT_HEAD") || role.includes("TEAM_LEADER");
+
+            return !isInterviewer || username == user;
+        }
+
+        function isAnAdmin() {
+            const userRole = document.getElementById("user-role");
+            const role = userRole.innerText;
+            return role.includes("ADMIN");
+        }
+
+        function isJuniorHR() {
+            const userRole = document.getElementById("user-role");
+            const role = userRole.innerText;
+            return role.includes("HR_JUNIOR");
+        }
+
+
+        $(document).ready(function () {
+
+
+
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            $(document).ajaxSend(function (e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+            const dateColumnIndex = 4;
+
+            //Datatable
+
+            const table = $('#example').DataTable({
+				"scrollX": true,
+                dom: 'Blfrt<"d-flex justify-content-between pe-2"ip>',
+                buttons: [
+                    {
+                        extend: 'pdfHtml5',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 9]
+                        }
+                    },
+                    'colvis'
+                ],
+                ajax: {
+                    contentType: 'application/json',
+                    url: '/mng/rest/candidates/data',
+                    type: 'POST',
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    },
+                },
+                stateSave: true,
+                serverSide: true,
+                columns: [
+                    { data: "id", name: "#", className: "text-center" },
+                    { data: "name", name: "Name", className: "text-center" },
+                    { data: "jobDetail.jobTitle.name", name: "Job Applied", className: "text-center" },
+                    {
+                        data: "jobDetail.jobLevel.name", name: "Level", className: "text-center",
+                        render: function (data, type, row) {
+                            if (data) {
+                                return data;
+                            } else {
+                                return "-";
+                            }
+
+
+                        }
+                    },
+                    {
+                        data: "createdDate", name: "Application Date", className: "text-center",
+                        render: function (data, type, row) {
+                            let date = new Date(data);
+                            let day = date.getDate();
+                            let month = date.getMonth() + 1;
+                            let year = date.getFullYear();
+
+                            if (day < 10) day = '0' + day;
+                            if (month < 10) month = '0' + month;
+
+                            let formattedDate = day + '-' + month + '-' + year;
+                            return formattedDate;
+                        },
+                        searchable: false
+                    },
+
+                    {
+                        data: "id", name: "Summary",
+                        render: function (data, type, row) {
+                            return '<button class="btn btn-success view-summary-button">View Summary</button>' +
+                                '<input type="hidden" value="' + data + '" class="viewSummaryId">';
+                            ;
+                        }
+                    },
+
+                    {
+                        data: "curriculumVitae.id", name: "Download CV", className: "text-center", orderable: false,
+                        render: function (data, type, row) {
+                            const isAuthorized = isUserAuthorized(row.jobDetail.team.department.departmentHead.username) || isUserAuthorized(row.jobDetail.team.teamLeader);
+                            if(isAuthorized) {
+                                return '<a href="/mng/candidate/download-cv/' + data + '?errorpage=candidates" class="btn btn-dark">Download CV <i class="fas fa-download"></a>';
+                            } else {
+                                return '<a style="pointer-events: none;" class="btn btn-secondary">Download CV <i class="fas fa-download"></a>';
+                            }
+                        }
+                    },
+
+                    {
+                        data: "curriculumVitae.status", name: "CV Scanning", className: "text-center", orderable: false,
+                        render: function (data, type, row) {
+                            var candidateId = row.curriculumVitae.id;
+                            var finalResult=row.finalResult;
+                            const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+                            let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+                            isAuthorized = isAuthorized && !isJuniorHR();
+                            if(isAuthorized && finalResult==='NOT_REACHED') {
+                                    return ' <td >' +
+                                '<input type="hidden" class="resultValue" value="' + candidateId + '">' +
+
+                                '<select style="color:#696969;" id="mySelect" data-show-content="true" class="form-select fa"' +
+                                'aria-label="Default select example"' +
+                                '><option value="RECEIVED"' + (data === 'RECEIVED' ? ' selected' : '') + '><span' +
+                                '>' + (data === 'RECEIVED' ? '&#xf058;' : '') + '</span>' +
+                                ' Received</option>' +
+                                '<option value="VIEWED"' + (data === 'VIEWED' ? ' selected' : '') + '><span' +
+                                '>' + (data === 'VIEWED' ? '&#xf058;' : '') + '</span>' +
+                                'Viewed</option>' +
+                                '<option value="CONSIDERING"' + (data === 'CONSIDERING' ? ' selected' : '') + '><span' +
+                                '>' + (data === 'CONSIDERING' ? '&#xf058;' : '') + '</span>' +
+                                'Considering</option>' +
+                                '</select>' +
+                                '</td>';
+
+                            } else {
+                                        return ' <td >' +
+                                        '<input type="hidden" class="resultValue" value="' + candidateId + '">' +
+                                        '<p style="text-align:center;margin-top:15px" >' + data + '</p></td>';
+
+                            }
+                        },
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).attr('id', 'resultSelect');
+                        }
+                    },
+
+                    {
+                        data: "id", name: "Interview", className: "text-center align-middle", orderable: false,
+                        render: function (data, type, row) {
+                            const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+                            let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+                            isAuthorized = isAuthorized && !isJuniorHR();
+                            if(isAuthorized) {
+                                return '<a class="btn btn-secondary" href="/mng/interview/candidateInterview?candidateId=' + data + '">See More</a>';
+                            } else {
+                                return '<a style="pointer-events: none;" class="btn btn-secondary">See More</a>';
+                            }
+                        }
+                    },
+
+
+
+                    {
+                        data: "jobOfferMailSent", name: "Job Offer Status", className: "text-center align-middle", orderable: false,
+                        render: function (data, type, row) {
+
+                            let status = data ? "Offered" : "Not Offered";
+                            return status;
+                        }
+
+                    },
+
+                    {
+                        data: "id", name: "Job Offer", className: "text-center align-middle", orderable: false,
+                        render: function (data, type, row) {
+                            var mailStatus = row.jobOfferMailSent;
+                            var result=row.finalResult;
+                            var candidateEmail = row.email;
+                            var name = row.name;
+                            var candidateId = row.id;
+                            var jobPosition=row.jobDetail.jobTitle.name + (row.jobDetail.jobLevel != null ? '(' + row.jobDetail.jobLevel.name + ')' : '');
+                            const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+                            let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+                            isAuthorized = isAuthorized && !isJuniorHR();
+                            if(isAuthorized) {
+                                return '<a type="button" class="btn btn-outline-primary send-btn " data-candidatename="' + name + '" ' +
+                                    ' data-candidateid="' + candidateId + '" data-email="' + candidateEmail + '"' +
+                                    'data-mailstatus="' + mailStatus + '" data-result="'+result+'" data-jobposition="'+jobPosition+'"' +
+                                    ' id="sendEamilBtn"  role="button">' +
+                                    '<i class="fa-solid fa-paper-plane"></i></a>' +
+                                    '<span class="position-absolute translate-middle p-1 ' +
+                                    (mailStatus === false ? 'text-danger fa-solid fa-circle-info' : 'text-success fa-solid fa-circle-check') + '">' +
+                                    '<span class="visually-hidden">New alerts</span>' +
+                                    '</span>';
+                            } else {
+                                return '<a type="button" style="pointer-events: none;" class="btn btn-outline-primary" data-candidatename="' + name + '" ' +
+                                    ' data-candidateid="' + candidateId + '" data-email="' + candidateEmail + '"' +
+                                    'data-mailstatus="' + mailStatus + '" data-result="'+result+'" data-jobposition="'+jobPosition+'"' +
+                                    ' role="button">' +
+                                    '<i class="fa-solid fa-paper-plane"></i></a>' +
+                                    '<span class="position-absolute translate-middle p-1 ' +
+                                    (mailStatus === false ? 'text-danger fa-solid fa-circle-info' : 'text-success fa-solid fa-circle-check') + '">' +
+                                    '<span class="visually-hidden">New alerts</span>' +
+                                    '</span>';
+                            }
+                        }
+                    },
+                    {   
+                        data: "jobAccepted",
+                        name: "Job Accepted",
+                        className: "text-center align-middle",
+                        render: function (data, type, row) {
+                            const isAnAuthorizedInterviewer = isAuthorizedInterviewer(row.jobDetail.team.department.departmentHead.username) || isAuthorizedInterviewer(row.jobDetail.team.teamLeader);
+                            let isAuthorized = isAnAuthorizedInterviewer || isAnAdmin();
+                            isAuthorized = isAuthorized && !isJuniorHR();
+                            if(isAuthorized) {
+                                return data ? `<i data-mail=${row.jobOfferMailSent} id="${row.id}" class="pointer fa-solid fa-square-check fa-2xl text-success job-accept-btn"></i>` : `<i data-mail=${row.jobOfferMailSent} id="${row.id}" class="pointer fa-solid fa-square-xmark fa-2xl text-danger job-accept-btn"></i>`;
+                            } else {
+                                return data ? '<i class="fa-solid fa-square-check fa-2xl text-success"></i>' : '<i class="fa-solid fa-square-xmark fa-2xl text-danger"></i>';
+                            }
+                        }
+                    },
+                    {
+                        data: "jobDetail.team.department.name", name: "Department", className: "text-center",
+                    },
+
+                    {
+                        data: "jobDetail.team.name", name: "Team", className: "text-center",
+                    },
+
+                    {
+                        data: "id", className: "text-center", orderable: false,
+                        render: function (data, type, row) {
+                            return '<input type="checkbox" class="select-cv" name="checkbox" value="' + data + '">'
+                        }
+                    }
+
+
+
+                    // {
+                    //     data: "interview.final_result", name: "Interview", className: "text-center",
+                    //     render: function (data, type, row) {
+                    //         let status = data == 0 ? "Not Interviewed" : data == 1 ? "Pending" : data==2 ? "Passed" : "Cancelled";
+                    //         return status;
+                    //     }
+
+                    // },
+                    //{ data: "in", name: "Application Date", className: "text-center" },
+                ]
+            }
+            );
+            // Function to handle the download button click
+            function handleDownloadClick(event) {
+                event.preventDefault();  // Corrected: Add parentheses to call the method
+                downloadFilteredCvs();
+            }
+
+            // Attach event listener to the download button
+            const downloadButton = document.getElementById("download");
+            downloadButton.addEventListener('click', handleDownloadClick);
+
+
+            function downloadFilteredCvs() {
+                //get filtered data
+                var filteredData = table.rows({ filter: 'applied' }).data().toArray();
+                console.log(filteredData);
+
+                // Send an AJAX request to the server
+                $.ajax({
+                    url: '/mng/candidate/download-filtered',
+                    type: 'POST',
+                    data: JSON.stringify(filteredData),
+                    contentType: 'application/json',
+
+                });
+            }
+
+
+
+
+
+            table.column(dateColumnIndex).search(null).draw();
+
+            // Initialize date range picker
+            var start = null;
+            var end = null;
+
+            $("#daterange span").html("Select your date range")
+
+            function cb(start, end) {
+                $("#min-date").val(start.format('YYYY-MM-DD'));
+                $("#max-date").val(end.format('YYYY-MM-DD'));
+                $('#daterange span').html(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                table.column(dateColumnIndex).search(start.format('YYYY-MM-DD') + ";" + end.format('YYYY-MM-DD')).draw();
+            }
+
+            $('#daterange').daterangepicker({
+                "showDropdowns": true,
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [
+                        moment(), moment()
+                    ],
+                    'Yesterday': [
+                        moment().subtract(1, 'days'),
+                        moment().subtract(1, 'days')
+                    ],
+                    'Last 7 Days': [
+                        moment().subtract(6, 'days'),
+                        moment()
+                    ],
+                    'Last 30 Days': [
+                        moment().subtract(29, 'days'),
+                        moment()
+                    ],
+                    'This Month': [
+                        moment().startOf('month'), moment().endOf('month')
+                    ],
+                    'Last Month': [
+                        moment().subtract(1, 'month').startOf('month'),
+                        moment().subtract(1, 'month').endOf('month')
+                    ]
+                },
+                "alwaysShowCalendars": true
+            }, cb);
+
+            // return all rows when date range gets cleared
+            $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+                $("#daterange span").html("Select your date range");
+                table.column(dateColumnIndex).search(null).draw();
+            });
+            table.on('draw', function () {
+                document.querySelectorAll(".view-summary-button").forEach(el => {
+                    el.addEventListener("click", function (e) {
+                        var candidateId = $(this).next('.viewSummaryId').val();
+
+                        // Perform an AJAX fetch request to get candidate details
+                        $.ajax({
+                            url: '/candidate/' + candidateId,
+                            type: 'GET',
+                            success: function (candidate) {
+                                // Populate the modal with candidate details
+                                $('#candidateModal span').eq(0).text(candidate.name);
+                                $('#candidateModal span').eq(1).text(candidate.phone_number);
+                                $('#candidateModal span').eq(2).text(candidate.email);
+                                $('#candidateModal span').eq(3).text(candidate.address);
+                                $('#candidateModal span').eq(4).text(candidate.expected_salary + " MMK");
+                                $('#candidateModal span').eq(5).text(candidate.experience);
+                                $('#candidateModal span').eq(6).text(candidate.education);
+                                $('#candidateModal span').eq(7).text(candidate.sex == 'M' ? 'Male' : 'Female');
+                                $('#candidateModal span').eq(8).text(candidate.technical_skills);
+                                $('#candidateModal span').eq(9).text(candidate.language_skills);
+                                $('#candidateModal span').eq(10).text(candidate.main_skill);
+                                $('#candidateModal span').eq(11).text(candidate.dob.substring(0, 10));
+                                $('#candidateModal span').eq(12).text(candidate.appliedPosition);
+                                $('#candidateModal span').eq(13).text(candidate.level);
+
+
+
+
+
+                                // Show the modal
+                                $('#candidateModal').modal('show');
+                            },
+                            error: function () {
+                                console.error('Error fetching candidate details.');
+                            }
+                        });
+                    })
+                })
+                //for check interview result in database by fetch when select 
+                document.querySelectorAll('[id^="resultSelect"]').forEach(element => {
+                    element.lastElementChild.addEventListener('change', function () {
+                        var candidateId = element.firstElementChild.value;
+                        var cVStatus = element.lastElementChild.value;
+
+                        var selectBox = element.lastElementChild;
+                        var selectedOption = selectBox.options[selectBox.selectedIndex];
+                        var selectedOptionText = selectedOption.textContent;
+                        var icon = '&#xf058;';
+
+                        // Add the icon to the selected option
+                        selectedOption.innerHTML = icon + " " + selectedOptionText;
+
+                        // Remove the icon from the other options or not selected option
+                        for (var i = 0; i < selectBox.options.length; i++) {
+                            if (i !== selectBox.selectedIndex) {
+                                var option = selectBox.options[i];
+                                var icon = '&#xf058;'; // The icon you want to remove (replace this with the actual icon)
+                                switch (i) {
+                                    case 0: option.innerHTML = 'Received'; break;
+                                    case 1: option.innerHTML = 'Viewed'; break;
+                                    case 2: option.innerHTML = 'Considering'; break;
+                                }
+                            };
+                        };
+
+                        //to get index of selected element
+                        var indexOfSelectElement = Array.from(document.querySelectorAll('[id^="resultSelect"]')).indexOf(element);
+
+                        //for get the list of interview result
+                        var statusChange = document.querySelectorAll('[id^="statusChange"]');
+
+                        //for insert status value in database
+                        var addStatus = null;
+
+                        //loop interview status and find status that change result colume
+
+
+                        //for build interview object
+                        const CurriculumVitae = {
+                            id: candidateId,
+                            status: cVStatus
+
+                        };
+
+                        fetch('/mng/jobOffer/addCVStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [header]: token,
+                                'X-XSRF-Token': token
+                            },
+                            body: JSON.stringify(CurriculumVitae)
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    console.log("Fail");
+                                    throw new Error("Response is not ok");
+                                }
+
+                                return response.text();
+                            })
+                            .then(data => console.log(data))
+                            .catch(error =>
+                                console.error('Error :' + error)
+                            );
+
+
+                    })//end tag
+                }) //end tag of  result select
+
+                //delclare variable to get from each interview table
+                var candidateNameMail,jobPosition;
+
+                // //to send job Offer mail
+                document.querySelectorAll(".send-btn").forEach((el, index) => {
+                    el.onclick = (e) => {
+                        const targetBtn = e.target.closest('.send-btn');
+                        if (targetBtn) {
+                            var mailStatus = targetBtn.dataset.mailstatus;
+                            
+                            if (mailStatus === 'false') {
+                                if(targetBtn.dataset.result === 'PASSED'){
+                                    sendMailCandidateId.value = targetBtn.dataset.candidateid;
+                                    candidateNameMail = targetBtn.dataset.candidatename;
+                                    toEmail.value = targetBtn.dataset.email;
+                                    jobPositionMail=targetBtn.dataset.jobposition;
+                                    fromEmail.value = 'acecompany771@gmail.com'
+                                    pageRedirect.value = 0;
+                                    confirmInterviewResultModal.show();
+                                }else{checkInterviewResultModal.show();}        
+                            }
+                            else {
+                                togglePopupWarning('Mail Warning !!', 'Job Offer mail has been sent ')
+                            }
+                        }
+                    }
+                });//end tag of send mail
+
+                //to select email type
+                document.getElementById('typeSelect').addEventListener('change', function () {
+                    var typeId = typeSelect.value;
+                    var editor = tinymce.get('interviewMail');
+                    if (typeId !== 'Choose') {
+                        fetch('/mng/mail/getEmailType', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [header]: token,
+                                'X-XSRF-Token': token
+                            },
+                            body: JSON.stringify(typeId)
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Response is not ok");
+                                }
+                                return response.json();
+                            }
+                            )
+                            .then(data => {
+                                if (data.subject == null) {
+                                    editor.setContent('');
+                                    subject.value = null;
+                                }
+                                else {
+                                    var replaceName = (data.bodyText).replaceAll('[Candidate\'s Name]', candidateNameMail);
+                                    var replaceJobPosition=replaceName.replaceAll('[Job Position]',jobPositionMail);
+                                    editor.setContent(replaceJobPosition);
+                                    subject.value = data.subject;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error :' + error)
+                            });
+                    }
+
+                })//end tag of email type select
+
+                document.querySelectorAll(".job-accept-btn").forEach(el => {
+                el.addEventListener("click", (e) => {
+                    document.getElementById("job-accept-id").value = e.target.id;
+                    const hasMailSent = e.target.dataset.mail;
+                    if(hasMailSent == "true") {
+                    $("#change-job-accept-modal").modal("show");
+                    } else {
+                    $("#job-accept-disabled-modal").modal("show");
+                    }
+                })
+                })
+            })
+
+            function applyFilters() {
+                var filteredData = table.rows({ search: 'applied' }).data().toArray();
+                console.log(filteredData);
+
+                var titleFilter = $("#title").val();
+                var levelFilter = $("#level").val();
+                var cvFilter = $("#cv").val();
+                var interviewFilter = $("#filter").val();
+                var jobofferFilter = $("#job-offer").val();
+                var jobAcceptedFilter = $("#job-accepted").val();
+                var departmentFilter = $("#department").val();
+                var teamFilter = $("#team").val();
+
+
+                table.column(9).search(jobofferFilter).draw();
+                table.column(11).search(jobAcceptedFilter).draw();
+                table.column(7).search(cvFilter).draw();
+                table.column(3).search(levelFilter).draw();
+                table.column(2).search(titleFilter).draw();
+                table.column(12).search(departmentFilter).draw();
+                table.column(13).search(teamFilter).draw();
+                
+            }
+
+            $("#level").on("change", function () {
+                console.log("level filter is working");
+                applyFilters();
+            });
+
+            $("#title").on("change", function () {
+                console.log("title filter is working");
+                applyFilters();
+            }
+            );
+            $("#cv").on("change", function () {
+                console.log("title filter is working");
+                applyFilters();
+            });
+
+            $("#job-offer").on("change", function () {
+                console.log("title filter is working");
+                applyFilters();
+            });
+
+            $("#job-accepted").on("change", function () {
+                applyFilters();
+            });
+            $("#department").on("change", function () {
+                console.log("department filter is working");
+                applyFilters();
+            });
+            $("#team").on("change", function () {
+                console.log("team filter is working");
+                applyFilters();
+            });
+
+        });
+
+
+        function clearFilter(event) {
+            console.log("Clearing filters");
+            var table = $('#example').DataTable();
+
+            // Create an array to store select elements
+            var selectElements = [
+
+                document.getElementById('level'),
+                document.getElementById('title'),
+                document.getElementById('cv'),
+                document.getElementById('job-offer'),
+                document.getElementById('job-accepted'),
+                document.getElementById('department'),
+                document.getElementById('team'),
+            ];
+
+
+            $("#daterange span").html("Select your date range");
+            table.column(4).search(null).draw();
+
+            // Loop through each select element
+            selectElements.forEach(function (selectElement) {
+                // Find the option with the value "ALL" within the current select element
+                var allOption = selectElement.querySelector('option[value=""]');
+
+                // Set the "selected" attribute of the "ALL" option to true
+                allOption.selected = true;
+
+                // Trigger a change event for the current select element
+                var changeEvent = new Event('change');
+                selectElement.dispatchEvent(changeEvent);
+            });
+
+            // Rest of your code to clear other filters using DataTables
+            var table = $('#example').DataTable();
+            table.search('');
+            table.columns().search('').draw();
+        }
+
+
+
+        const filterClear = document.getElementById("clear");
+        filterClear.addEventListener('click', clearFilter);
+
+
+
+        const checkedValues = [];
+        // Function to handle the download button click
+        function handleFilterClick(event) {
+            event.preventDefault();  // Corrected: Add parentheses to call the method
+            const checkboxes = document.querySelectorAll(".select-cv");
+
+            // Loop through each checkbox element
+            checkboxes.forEach(checkbox => {
+                // Check if the checkbox is checked
+                if (checkbox.checked) {
+                    // Add the value of the checked checkbox to the array
+                    checkedValues.push(checkbox.value);
+                }
+            });
+            downloadCvs();
+        }
+
+        // Attach event listener to the download button
+        const downloadButton = document.getElementById("filter");
+        downloadButton.addEventListener('click', handleFilterClick);
+
+
+
+        function downloadCvs() {
+            //get filtered data
+            //var filteredData = checkedValues;
+            console.log(checkedValues);
+
+            // Send an AJAX request to the server
+            $.ajax({
+                url: '/mng/candidate/download',
+                type: 'POST',
+                data: JSON.stringify(checkedValues),
+                contentType: 'application/json',
+            });
+        }
+    </script>
+
+
+    <script>
+        // Get the current date
+        var currentDate = new Date();
+
+        // Get the month index (0-11)
+        var currentMonthIndex = currentDate.getMonth();
+
+        // Array of month names
+        var monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Get the name of the current month
+        var currentMonthName = monthNames[currentMonthIndex];
+
+        // Find the span element and update its content
+        var spanElement = document.getElementById("currentMonth");
+        spanElement.textContent = currentMonthName;
+    </script>
+
+
+
+
+
+
+
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Callback that creates and populates a data table,
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+
+
+        function drawChart() {
+
+            var jsonData = $.ajax({
+                url: "/mng/candidate/chart-data",
+                dataType: "json",
+                async: false
+            }).responseText;
+
+            // Create our data table out of JSON data loaded from server.
+            var data = new google.visualization.DataTable(jsonData);
+
+            // Instantiate and draw our chart, passing in some options.
+            var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+            chart.draw(data, { width: 400, height: 240 });
+        }
+    </script>
+
+
+
+</body>
+
+</html>

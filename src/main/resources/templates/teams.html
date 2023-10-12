@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Teams</title>
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" th:href="@{/css/teams.css}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+        <!--AlertBox-->
+        <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content"><!-- Write your code or content here -->
+                            <div class="pe-3 ps-3 pt-2 pb-2">
+                                <table id="teams" class="table table-striped w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Team Leader</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <form id="delete-team-form" th:action="@{|/mng/departments/${deptId}/teams/delete|}" method="post">
+                                    <input id="delete-team-input" type="hidden" name="id" value="">
+                                </form>
+                            </div>
+                            <!-- Add new team modal -->
+                            <div class="modal modal-lg fade" id="add-team-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Add Team</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="add-team-form" method="post" th:action="@{|/mng/departments/${deptId}/teams/add|}" th:object="${newTeam}">
+                                                <div class="row pe-4">
+                                                    <label for="id" class="col-3 col-form-label me-2">ID:</label>
+                                                    <input th:field="*{id}" type="text" class="col form-control" id="team-id">
+                                                </div>
+                                                <p id="id-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{id}"></p>
+                    
+                                                <div class="mt-3 row pe-4">
+                                                    <label for="name" class="col-3 col-form-label me-2">Team Name:</label>
+                                                    <input th:field="*{name}" type="text" class="col form-control" id="name">
+                                                </div>
+                                                <p id="name-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{name}"></p>
+                    
+                                                <div class="mt-3 row pe-4">
+                                                    <label class="col-3 col-form-label me-2">Team Leader:</label>
+                                                    <select th:unless="${#lists.size(teamLeaders) == 0}" th:field="*{teamLeader}" id="team-leader" class="col form-select">
+                                                        <option th:each="teamLeader : ${teamLeaders}" th:value="${teamLeader.id}" th:text="${teamLeader.name}"></option>
+                                                    </select>
+                                                    <select th:if="${#lists.size(teamLeaders) == 0}" class="col form-select">
+                                                        <option selected>No available team leaders.</option>
+                                                    </select>
+                                                </div>
+                                                <p id="team-leader-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{teamLeader}"></p>
+                                                <p id="new-team-error" class="error mb-3 pe-4 text-danger text-end" th:errors="${newTeam}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-primary" onclick="addTeam()">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit team modal -->
+                            <div class="modal modal-lg fade" id="edit-team-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Edit Team</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="edit-team-form" method="post" th:action="@{|/mng/departments/${deptId}/teams/update|}" th:object="${updateTeam}">
+                                                <div class="row pe-4">
+                                                    <label for="id" class="col-3 col-form-label me-2">ID:</label>
+                                                    <input th:field="*{id}" type="text" class="col form-control" id="id" readonly>
+                                                </div>
+                                                <p id="id-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{id}"></p>
+
+                                                <div class="mt-3 row pe-4">
+                                                    <label for="name" class="col-3 col-form-label me-2">Team Name:</label>
+                                                    <input th:field="*{name}" type="text" class="col form-control" id="name">
+                                                </div>
+                                                <p id="name-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{name}"></p>
+
+                                                <div class="mt-3 row pe-4">
+                                                    <label class="col-3 col-form-label me-2">Team Leader:</label>
+                                                    <select th:field="*{teamLeader}" id="team-leader" class="col form-select">
+                                                        <option th:each="teamLeader : ${teamLeaders}" th:value="${teamLeader.id}" th:text="${teamLeader.name}"></option>
+                                                    </select>
+                                                </div>
+                                                <p id="team-leader-error" class="error mb-3 pe-4 text-danger text-end" th:errors="*{teamLeader}"></p>
+                                                <p id="update-team-error" class="error mb-3 pe-4 text-danger text-end" th:errors="${updateTeam}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Created By:
+                                                        <span id="audit-creator"></span>
+                                                        <span id="audit-created-date"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Last Updated By:
+                                                        <span id="audit-updater"></span>
+                                                        <span id="audit-last-updated"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button class="btn btn-primary" onclick="updateTeam()">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+
+                        <!-- Delete team modal -->
+                        <div class="modal fade" id="delete-team-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-danger">Confirm Delete</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="fs-5">Are you sure to deleted the selected team?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteTeam()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="jobDetail_Interview :: alertBox"></div>
+            
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+        
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+        <!--AlertBox-->
+        <script th:src="@{/js/alertBox.js}"></script>
+
+        <script th:inline="javascript">
+            const teamAddSuccess =/*[[${teamAddSuccess}]]*/ null;
+            const teamUpdateSuccess =/*[[${teamUpdateSuccess}]]*/ null;
+            const teamDeleteSuccess =/*[[${teamDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (teamAddSuccess != null) {
+                togglePopupSuccess("Success", teamAddSuccess);
+            }
+            if (teamUpdateSuccess != null) {
+                togglePopupSuccess("Success", teamUpdateSuccess);
+            }
+            if (teamDeleteSuccess != null) {
+                togglePopupSuccess("Success", teamDeleteSuccess);
+            }
+
+            $(function () {
+                const token = $("meta[name='_csrf']").attr("content");
+                const header = $("meta[name='_csrf_header']").attr("content");
+                $(document).ajaxSend(function (e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+
+                /*<![CDATA[*/
+                    const deptId = /*[[${deptId}]]*/ 'default'
+                /*]]>*/
+                
+                const table = $('table#teams').DataTable({
+                    dom: 'B<"d-flex justify-content-between align-items-center ps-2 pe-2"lf>r<"mt-2 mb-2"t><"d-flex justify-content-between pe-2"ip>',
+                    buttons: [
+                        {
+                            text: 'Add new team',
+                            attr: {
+                                id: 'add-new-team-btn'
+                            },
+                            className: 'btn btn-primary fw-bold',
+                            action: function (e, dt, node, config) {}
+                        }
+                    ],
+                    ajax: {
+                        contentType: 'application/json',
+                        url: '/mng/rest/teams?dept-id=' + deptId,
+                        type: 'POST',
+                        data: function (d) {
+                            return JSON.stringify(d);
+                        }
+                    },
+                    language: {
+                        "infoFiltered": "",
+                        searchPlaceholder: "Search query"
+                    },
+                    stateSave: true,
+                    serverSide: true,
+                    columns: [
+                        {
+                            data: 'id',
+                            render: function (data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            },
+                            orderable: false
+                        },
+                        {
+                            data: 'id'
+                        },
+                        {
+                            data: 'name'
+                        },
+                        {
+                            data: 'teamLeader.name'
+                        }, {
+                            data: "id",
+                            render: function (data, type, row, meta) {
+                                return '<td>' + '<i id="' + meta.row + '" class="fa-solid fa-pen-to-square edit-btn"></i>' + '<i id="' + data + '" class="fa-solid fa-trash ms-3 delete-btn" data-bs-toggle="modal" data-bs-target="#delete-team-modal"></i>' + '</td>';
+                            },
+                            orderable: false
+                        }
+                    ]
+                });
+
+
+                table.on('draw', function () { // Add proper styles to the add new button
+                    $('#add-new-team-btn').removeClass('dt-button');
+                    $('#add-new-team-btn').attr("data-bs-toggle", "modal");
+                    $('#add-new-team-btn').attr("data-bs-target", "#add-team-modal");
+
+                    // Make the filter and search box of datatable a bit larger
+                    $('#teams_length').find("select").removeClass("form-select-sm");
+                    $('#teams_filter').find('input').removeClass("form-control-sm");
+
+                    // Populate data for the edit modal
+                    /*<![CDATA[*/
+                    document.querySelectorAll('.edit-btn').forEach(editBtn => {
+                        editBtn.onclick = (e) => {
+                            document.querySelectorAll(".error").forEach((errorElement) => {
+                                errorElement.remove();
+                            });
+
+                            // Get the selected team object
+                            var selectedIndex = e.target.id;
+                            const team = table.row(selectedIndex).data();
+
+                            // Get auditing info
+                            const createdDate = new Date(team.createdDate);
+                            const creatorName = team.createdBy.name;
+                            const lastUpdated = new Date(team.lastUpdated);
+                            const updaterName = team.lastUpdatedBy.name;
+                            
+                            $('#edit-team-modal').modal('show');
+                            // Fill the input fields
+                            $('#edit-team-modal').find('#id').val(team.id);
+                            $('#edit-team-modal').find('#name').val(team.name);
+                            $('#edit-team-modal').find('#team-leader').prepend(
+                                `<option id="active-team-leader" value="${team.teamLeader.id}">${team.teamLeader.name}</option>`
+                            );
+                            $('#edit-team-modal').find('option[value=' + team.teamLeader.id + ']').prop('selected', true);
+
+                            // Fill the auditing info
+                            $('#edit-team-modal').find('#audit-creator').text(creatorName);
+                            $('#edit-team-modal').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                            $('#edit-team-modal').find('#audit-updater').text(updaterName);
+                            $('#edit-team-modal').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                        }
+                    })
+
+                    /*]]>*/
+
+                    document.querySelectorAll(".delete-btn").forEach((btn) => {
+                        btn.onclick = (e) => {
+                            $("#delete-team-input").val(e.target.id);
+                        };
+                    });
+
+
+                })
+
+
+            });
+
+            var teamLeader = /*[[${updateTeam.teamLeader}]]*/ null;
+        </script>
+        <script th:src="@{/js/teams.js}"></script>
+        <script th:src="@{/js/main.js}"></script>
+        
+    </body>
+
+</html>

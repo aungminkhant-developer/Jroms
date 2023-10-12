@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Job Details</title>
+<link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+          crossorigin="anonymous">
+    
+    <link rel="icon" type="image/png" href="images/Logo-removebg-preview.png" />
+    <style>
+      
+      .card {
+        margin: 0 auto;
+        width: 70%;
+        margin-bottom: 1rem;
+      }
+
+      #job-details {
+        padding-right: 32px;
+      }
+
+      #job-details li {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      @media only screen and (max-width: 768px) {
+        .card {
+          margin: 0 auto;
+          width: 100%;
+          margin-bottom: 1rem;
+        }
+
+        #job-details li {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+</head>
+<body>
+<div th:replace="fragment/navbar :: header"></div>
+
+
+
+<!-- Floating Back Button -->
+<button class="btn btn-secondary" style="position: sticky; margin-left: 30px;" onclick="goBack()">Back</button>
+<script>
+  // JavaScript function to go back to the previous page
+  function goBack() {
+    window.history.back();
+  }
+</script>
+  <div class="col-2 col-md-1 ">
+	
+  </div>
+  <div class="container mt-5 text-center">
+  <div>
+    <span th:text="${jobLevel}"></span><span><h2 th:text="${jobTitle.name}"></h2>
+  </div>
+	
+	<div class="col jobpost"><p><span  th:text="${others.posts}"></span>-Posts</p></div>
+</div>
+  
+  <!-- Content -->
+  <div class="container mt-5" style="padding-bottom: 5%;">
+    <div class="row">
+      <div class="col dec">
+        <div class="card">
+          <div class="card-header"><h5>Job Description</h5></div>
+          <div class="card-body">
+            <div th:utext="${description}"></div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col req">
+        <div class="card">
+          <div class="card-header"><h5>Job Responsibilities</h5></div>
+          <div class="card-body">
+            <div th:utext="${responsibilities}"></div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col req ">
+        <div class="card">
+          <div class="card-header"><h5>Job Requirements</h5></div>
+          <div class="card-body">
+        <div th:utext="${requirement}"></div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <th:block th:if="${preferences}">
+      <div class="row">
+        <div class="col pre ">
+          <div class="card">
+            <div class="card-header"><h5>Preferences</h5></div>
+            <div class="card-body">
+              <div th:utext="${preferences}"></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </th:block>
+    
+	<div class="row">
+		<div class="col work">
+      <div class="card">
+        <div class="card-header"><h5>Job Detail</h5></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12 col-lg-8">
+              <ul id="job-details">
+                <li><span>Working Day:&nbsp;</span><span th:text="${schedule.day}"></span></li>
+                <li><span>Working Hours:&nbsp;</span><span th:text="${schedule.hour}"></span></li>
+                <li><span>Salary:&nbsp;</span><span th:text="${others.salary}"></span></li>
+                <li><span>Job Location:&nbsp;</span><span>[[${location.building}]], [[${location.township}]], [[${location.division}]]</span></li>
+                <li><span>Job Type:&nbsp;</span><span th:text="${jobType.name}"></span></li>
+              </ul>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+			
+		</div>
+	  
+  </div>
+      <div class="apply d-flex justify-content-center" >
+       <button th:if="${isJobClosed}" class="btn btn-danger">Closed</button>
+       <form th:action="@{/job-details/candidateRegister}" method="post">
+          <input type="hidden" th:value="${others.id}" name="id"/>
+          <button th:unless="${isJobClosed}" type="submit" class="btn btn-primary">Apply</button>
+       </form>
+       
+      </div>
+      </div>
+  <!-- Footer -->
+ <div>
+	<footer class="footer small mt-auto py-3 fixed-bottom custom-footer">
+		<div class="container text-center">
+		  <span class="text-light"
+			>&copy;2023 All rights reserved by ACE Data Systems Ltd.</span
+		  >
+		</div>
+	  </footer>
+	</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+</body>
+</html>

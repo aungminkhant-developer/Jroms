@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+  <link href="candidate.css">
+
+</head>
+
+<body style="background-color: rgb(205, 225, 255);">
+
+  <div th:replace="fragment/navbar :: header"></div>
+
+  <section class="vh-100 gradient-custom">
+    <div class="container py-5 h-100">
+      <div class="row justify-content-center align-items-center h-100">
+        <div class="col-12 col-lg-9 col-xl-7">
+          <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+            <div class="card-body p-4 p-md-5">
+              <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Applicant Form</h3>
+
+              <!--Form Start Here-->
+              <form class="needs-validation" th:action="@{/registerCandidate}" th:object="${newCandidate}" method="post"
+                enctype="multipart/form-data" novalidate>
+                <div th:unless="${error == null}" th:text="${error}" style="color: red;"></div>
+
+                <div th:if="${#fields.hasAnyErrors()}">
+                  <ul>
+                    <li th:each="err : ${#fields.allErrors()}" th:text="${err}">
+                  </ul>
+                </div>
+                <!--Name-->
+                <div class="form-outline mb-4 ">
+                  <label class="form-label " for="name">Name</label>
+                  <input type="text" id="name" th:field="*{name}" class="form-control" onkeydown="preventSpace(event)"  oninput="removeLeadingSpace(event)" required maxlength="45" placeholder="Example Name" onkeyup="validateInput(event)"/>
+                  <div id="validMessage" style="color: green;"></div>
+
+                  <div class="invalid-feedback">
+                    Please choose a valid name.
+                  </div>
+                  <div class="valid-feedback">
+                    Looks good!
+                  </div>
+                </div>
+
+                <!--Address-->
+                <div class="form-outline mb-4 ">
+                  <label class="form-label " for="address">Address</label>
+                  <input type="text" id="address" th:field="*{address}" class="form-control" onkeydown="preventInvalidAddress(event)" oninput="removeLeadingSpace(event)" required maxlength="255" placeholder="No.1 Example Road, Example Township, Example City, Example Country" onkeyup="validateInput1(event)"/>
+                  <div id="validMessage1" style="color: green;"></div>
+
+                  <div class="invalid-feedback">
+                    Please choose a valid Address.
+                  </div>
+                  <div class="valid-feedback">
+                    Looks good!
+                  </div>
+
+                </div>
+
+                <!--Email-->
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="email">Email</label>
+                      <input type="email" id="email" th:field="*{email}" class="form-control form-control-md" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)" onkeyup="validateEmail(event)"
+                        required placeholder="Example@gmail.com"/>
+                        <div id="validEmail"></div>
+                      <div class="invalid-feedback">
+                        Please choose a valid email.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--Phone-->
+                  <div class="col-md-6 mb-4">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="phone">Phone</label>
+                      <input th:field="*{phone_number}" type="tel" id="phone" class="form-control form-control-md" onkeydown="preventInvalidInput(event)" oninput="removeLeadingSpace(event)"
+                        required maxlength="15" placeholder="Enter your phone number (digits only)"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid phone.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!--DOB-->
+                <div class="row">
+                  <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                    <div class="form-outline datepicker w-100">
+                      <label for="dob" class="form-label">Birthday</label>
+                      <p th:if="${#fields.hasErrors('dob')}">Invalid Age</p>
+                      <input type="date" th:field="*{dob}" class="form-control form-control-md" id="dob" required />
+                      <div class="invalid-feedback">
+                        Please choose a valid date of birth.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--Sex-->
+                  <div class="col-md-6 mb-4">
+
+                    <h6 class="mb-2 pb-1">Gender: </h6>
+
+                    <div class="form-check form-check-inline">
+                      <input class="form-radio-input" type="radio" name="inlineRadioOptions" id="femaleGender"
+                        th:field="*{sex}" value="F" required /> 
+                      <label class="form-check-label" for="femaleGender">Female</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                      <input class="form-radio-input" type="radio" name="inlineRadioOptions" id="maleGender"
+                        th:field="*{sex}" value="M" th:checked="${newCandidate.sex} == 'M'" required />
+                      <label class="form-check-label" for="maleGender">Male</label>
+                    </div>
+
+
+
+                  </div>
+                </div>
+
+                <!--Education-->
+                <div class="row">
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="edu">Bachelor/Diploma</label>
+                      <input type="text" id="edu" th:field="*{education}" class="form-control form-control-md" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                        required placeholder="Bachelor of Example" onkeyup="validateEducation"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid education.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--Language Skills-->
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="languageSkills">Language Skills</label>
+                      <input type="text" id="languageSkills" th:field="*{language_skills}" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                        class="form-control form-control-md" required placeholder="Japanese" onkeyup="validateLanguage"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid skill.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!--Technical Skils-->
+                <div class="row">
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="techSkills">Technical Skills</label>
+                      <input type="text" id="techSkills" th:field="*{technical_skills}" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                        class="form-control form-control-md" required placeholder="Java, PHP" onkeyup="validateTech"/>
+                      <div class="invalid-feedback ">
+                        Please choose a valid skill.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--Main Skill-->
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="specialTech">Main Specialist Tech</label>
+                      <input type="text" th:field="*{main_skill}" id="specialTech" class="form-control form-control-md" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                        required placeholder="React" onkeyup="validateMainTech"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid skill.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+
+                <!--Candidate Applied Position-->
+                <div class="row">
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="position">Applied Position</label>
+                      <input type="text" th:field="*{appliedPosition}" id="position" class="form-control form-control-md" placeholder="Java Developer" required onkeyup="validatePosition"/> 
+                      <div class="invalid-feedback">
+                        Please choose a valid position.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--Candidate Level-->
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="level">Level</label>
+                      <input type="text" th:field="*{level}" id="level" class="form-control form-control-md" placeholder="Senior" required onkeyup="validateLevel"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid level.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!--Experience-->
+                <div class="row">
+                  <div class="col-md-6 mb-4 pb-2">
+
+                    <div class="form-outline">
+                      <label class="form-label" for="experience">Related Experiences</label>
+                      <input type="text" th:field="*{experience}" id="experience" class="form-control form-control-md" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)"
+                        required placeholder="3 Years as a Junior Technician" onkeyup="validateExperience"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid experience.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--Salary-->
+                  <div class="col-md-6 mb-4 pb-2">
+                    <div class="form-outline">
+                      <label class="form-label" for="expSalary">Expected Salary</label>
+                      <input type="number" id="expSalary" th:field="*{expected_salary}"
+                        class="form-control form-control-md" onkeydown="preventSpace(event)" oninput="removeLeadingSpace(event)" required placeholder="200000" min="0"/>
+                      <div class="invalid-feedback">
+                        Please choose a valid salary.
+                      </div>
+                      <div class="valid-feedback">
+                        Looks good!
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+
+                <!--CV Upload-->
+                <div class="row">
+                  <div class="form-outline ">
+                    <label class="form-label" for="cvForm">Upload CV</label>
+                    <input type="file" id="cv" name="cv" class="form-control-file form-control-md" accept=".docx,.pdf" required
+                    onchange="checkFileExtension()"/>
+                    <div class="invalid-feedback">
+                      You must add CV before submitting.
+                    </div>
+                    <div class="valid-feedback">
+                      Looks good!
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Checkbox -->
+                <div class="form-check d-flex mt-3  mb-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
+                    <label class="form-check-label" for="invalidCheck">
+                      I have provided correct information and agree to terms and conditions.
+                    </label>
+                    <div class="invalid-feedback">
+                      You must agree before submitting.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-2">
+                  <input class="btn btn-primary btn-md" type="submit" value="Submit" /><input
+                    class="btn btn-danger btn-md" type="reset" value="Reset" />
+                </div>
+                <input type="hidden" th:value="${job}" name="id"/>
+              </form>
+
+              <!--Form End Here-->
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+ function validateEmail(event) {
+    const emailInput = event.target;
+    const validEmailMessage = document.getElementById("validEmail");
+
+    const email = emailInput.value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (email) {
+        if (emailRegex.test(email)) {
+            validEmailMessage.textContent = "Valid input";
+            validEmailMessage.style.color = "green";
+        } else {
+            validEmailMessage.textContent = "Invalid input";
+            validEmailMessage.style.color = "red";
+        }
+        validEmailMessage.style.display = "block"; // Show the message
+    } else {
+        validEmailMessage.style.display = "none"; // Hide the message
+    }
+}
+</script>
+
+<script>
+  
+function validateInput(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateEducation(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateLanguage(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateTech(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateMainTech(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validatePosition(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateLevel(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateExperience(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage");
+    
+
+
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+    } else if (/[^a-zA-Z\s]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input! Please use only letters and spaces.";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+
+function validateInput1(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    const validMessage = document.getElementById("validMessage1");
+    
+
+    
+    if (inputValue === "") {
+        validMessage.textContent = ""; // Clear the message when input is empty
+      } else if (/[^a-zA-Z\s,\/0-9.]/.test(inputValue)) {
+        validMessage.textContent = "Invalid input!";
+        validMessage.style.color = "red";
+    } else {
+        validMessage.textContent = "Valid input!";
+        validMessage.style.color = "green";
+    }
+}
+</script>
+  
+<script>
+  // Get the current date
+  var currentDate = new Date();
+
+  // Calculate the year that is 18 years before the current year
+  var maxYear = currentDate.getFullYear() - 18;
+
+  // Calculate the year that is 60 years before the current year
+  var minYear = currentDate.getFullYear() - 60;
+
+  // Format the maximum date in yyyy-mm-dd format
+  var maxDate = maxYear + "-" + ("0" + (currentDate.getMonth() + 1)).slice(-2) + "-" + ("0" + currentDate.getDate()).slice(-2);
+
+  var minDate = minYear + "-" + ("0" + (currentDate.getMonth() + 1)).slice(-2) + "-" + ("0" + currentDate.getDate()).slice(-2);
+
+  // Set the maximum attribute of the input field to the calculated maxDate
+  document.getElementById("dob").setAttribute("max", maxDate);
+  document.getElementById("dob").setAttribute("min", minDate);
+
+</script>
+
+<!-- File Extension Checker -->
+  <script>
+    function checkFileExtension() {
+      const allowedExtensions = [".docx", ".pdf"];
+      const fileInput = document.getElementById("cv");
+      const filePath = fileInput.value;
+      const fileExtension = filePath.substring(filePath.lastIndexOf("."));
+  
+      if (!allowedExtensions.includes(fileExtension.toLowerCase())) {
+        fileInput.value = ""; // Clear the selected file
+        fileInput.setCustomValidity("Please choose a .docx or .pdf file.");
+      } else {
+        fileInput.setCustomValidity("");
+      }
+    }
+  </script>
+
+<!--Space Preventer-->
+ <script>
+  function preventSpace(event) {
+    const inputElement = event.target;
+    const value = inputElement.value;
+    const firstChar = value.charAt(0);
+    
+    if (event.keyCode === 32 && firstChar === '') {
+      event.preventDefault();
+    }
+  }
+ </script>
+
+<script>
+  function preventInvalidAddress(event) {
+    const inputElement = event.target;
+    const inputValue = inputElement.value;
+    
+    // Check if the pressed key is a special character or space
+    const keyPressed = event.key;
+    const firstCharacter = inputValue.trim()[0]; // Get the first non-space character
+    
+    if (firstCharacter === '' && (keyPressed === ' ' || keyPressed === '/' || isSpecialCharacter(keyPressed))) {
+        event.preventDefault(); // Prevent input
+    }
+}
+
+function isSpecialCharacter(char) {
+    // List of special characters you want to prevent
+    const specialCharacters = [';', '/', ' ', /* Add more special characters here */];
+    return specialCharacters.includes(char);
+}
+
+  </script>
+
+ <!--Illegal Character Preventer-->
+ <script>
+  function preventInvalidInput(event) {
+    const allowedChars = ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    const keyPressed = event.key;
+
+    if (!allowedChars.includes(keyPressed) && keyPressed !== 'Backspace') {
+      event.preventDefault();
+    }
+  }
+</script>
+
+
+<!--Delete Space Function -->
+ <script>
+    function removeLeadingSpace(event) {
+    const inputElement = event.target;
+    const value = inputElement.value;
+    const newValue = value.replace(/^\s+/, ""); // Remove leading spaces
+    inputElement.value = newValue;
+    }
+ </script>
+
+
+<!--Error message-->
+  <script>
+    //JavaScript for disabling form submissions if there are invalid fields
+    (() => {
+      'use strict'
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      const forms = document.querySelectorAll('.needs-validation')
+
+      // Loop over them and prevent submission
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+
+
+</body>
+
+</html>

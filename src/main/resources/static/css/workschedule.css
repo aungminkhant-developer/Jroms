@@ -1,0 +1,28 @@
+@charset "ISO-8859-1";
+.custom-footer {
+    background-color: rgb(0, 51, 102);
+  }
+body{
+    background-color:#ddd;
+}
+
+
+
+.content{
+    min-height: 10px;
+}
+.main-content{
+    background-color: #ddd;
+}
+
+.left-content{
+    background-color: #fff;
+    border-right-style: solid; 
+    border-color: rgb(216, 216, 216);
+}
+.right-content{
+    background-color: #fff;
+    max-height: 600px;
+    min-height: 500px;
+    overflow-y: auto;
+}

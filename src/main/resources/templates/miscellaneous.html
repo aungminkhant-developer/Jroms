@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://www.thymeleaf.org ">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Miscellaneous</title>
+        <meta th:name="_csrf" th:content="${_csrf.token}"/>
+        <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" th:href="@{/css/miscellaneous.css}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <!--AlertBox-->
+        <link rel="stylesheet" th:href="@{/css/alertBox.css}">
+    </head>
+    <body>
+
+        <div class="container-fluid">
+
+            <div
+                class="row">
+                <!-- Sidebar -->
+                <div th:replace="custom_fragments :: sidebar"></div>
+                <div class="col p-0">
+                    <div
+                        class="fluid-container">
+                        <!-- Main Header -->
+                        <div th:replace="custom_fragments :: main-header"></div>
+                        <!-- Main Content -->
+                        <div
+                            class="main-content"><!-- Write your code or content here -->
+                            <!-- Interview Stage Modals -->
+                            <!-- Add interview stage modal -->
+                            <div class="modal fade" id="add-interview-stage-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Add Interview Stage</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="add-interview-stage-form" method="post" th:action="@{/mng/miscellaneous/interview-stages/add}" th:object="${newInterviewStage}" >
+                                                <div class="mb-3">
+                                                    <label for="interview-stage" class="col-form-label">Interview stage:</label>
+                                                    <input type="text" class="form-control" id="interview-stage" th:field="*{name}">
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="${newInterviewStage}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-primary" onclick="addInterviewStage()">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit interview stage modal -->
+                            <div class="modal fade" id="edit-interview-stage-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Edit Interview Stage</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="edit-interview-stage-form" method="post" th:action="@{/mng/miscellaneous/interview-stages/update}" th:object="${updateInterviewStage}" >
+                                                <div class="mb-3">
+                                                    <label for="interview-stage" class="col-form-label">Interview stage:</label>
+                                                    <input type="hidden" th:field="*{id}" id="interview-stage-id">
+                                                    <input type="text" class="form-control" id="interview-stage" th:field="*{name}">
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="${updateInterviewStage}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div id="edit-interview-stage-audit">
+                                                <div class="row">
+                                                    <div class="col audit-info">Created By:
+                                                        <span id="audit-creator"></span>
+                                                        <span id="audit-created-date"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Last Updated By:
+                                                        <span id="audit-updater"></span>
+                                                        <span id="audit-last-updated"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button class="btn btn-primary" onclick="updateInterviewStage()">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Delete interview stage modal -->
+                            <div class="modal fade" id="delete-interview-stage-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-danger">Confirm Delete</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="fs-5">Are you sure to deleted the selected interview stage?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteInterviewStage()">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <!-- Add job level modal -->
+                        <div class="modal fade" id="add-job-level-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-secondary">Add Job Level</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="add-job-level-form" method="post" th:action="@{/mng/miscellaneous/job-levels/add}" th:object="${newJobLevel}" >
+                                            <div class="mb-3">
+                                                <label for="job-level" class="col-form-label">Job Level:</label>
+                                                <input type="text" class="form-control" id="job-level" th:field="*{name}">
+                                                <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                <p id="name-error" class="error text-danger text-end" th:errors="${newJobLevel}"></p>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-primary" onclick="addJobLevel()">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit job level modal -->
+                        <div class="modal fade" id="edit-job-level-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-secondary">Edit Job level</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="edit-job-level-form" method="post" th:action="@{/mng/miscellaneous/job-levels/update}" th:object="${updateJobLevel}" >
+                                            <div class="mb-3">
+                                                <label for="job-level" class="col-form-label">Job level:</label>
+                                                <input type="hidden" th:field="*{id}" id="job-level-id">
+                                                <input type="text" class="form-control" id="job-level" th:field="*{name}">
+                                                <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                <p id="name-error" class="error text-danger text-end" th:errors="${updateJobLevel}"></p>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer d-flex justify-content-between">
+                                        <div id="edit-job-level-audit">
+                                            <div class="row">
+                                                <div class="col audit-info">Created By:
+                                                    <span id="audit-creator"></span>
+                                                    <span id="audit-created-date"></span>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col audit-info">Last Updated By:
+                                                    <span id="audit-updater"></span>
+                                                    <span id="audit-last-updated"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-primary" onclick="updateJobLevel()">Update</button>    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Delete job level modal -->
+                        <div class="modal fade" id="delete-job-level-modal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-danger">Confirm Delete</h3>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="fs-5">Are you sure to deleted the selected job level?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteJobLevel()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row container-fluid">
+                            <div class="col">
+                                <div class="container-fluid content-area">
+                                    <div class="row d-flex justify-content-between">
+                                        <div class="col-md-5 col-sm-12 col-sm-12 m-2">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col fw-bold">Job Titles</div>
+                                                <button class="col-3 btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add-job-title-modal">Add</button>
+                                            </div>
+                                            <div class="row miscellaneous-table">
+                                                <table class="table">
+                                                    <thead class="position-sticky top-0 bg-light">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Name</th>
+                                                            <th class="text-end pe-4">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="jobTitle, iter : ${jobTitles}">
+                                                            <td th:text="${iter.count}"></td>
+                                                            <td th:text="${jobTitle.name}"></td>
+                                                            <td class="text-end pe-4">
+                                                                <i th:data-index="${iter.index}" class="fa-solid fa-pen-to-square jt-edit-btn"></i>
+                                                                <i th:data-id="${jobTitle.id}" class="fa-solid fa-trash ms-3 jt-delete-btn" data-bs-toggle="modal" data-bs-target="#delete-job-title-modal"></i>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <form id="delete-job-title-form" th:action="@{/mng/miscellaneous/job-titles/delete}" method="post">
+                                                    <input type="hidden" name="id" id="delete-job-title">
+                                                </form>
+                                                
+                                                <!-- Add job title modal -->
+                                                <div class="modal fade" id="add-job-title-modal">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="text-secondary">Add Job Title</h3>
+                                                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form id="add-job-title-form" method="post" th:action="@{/mng/miscellaneous/job-titles/add}" th:object="${newJobTitle}" >
+                                                                    <div class="mb-3">
+                                                                        <label for="job-title" class="col-form-label">Job Title:</label>
+                                                                        <input type="text" class="form-control" id="job-title" th:field="*{name}">
+                                                                        <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                                        <p id="name-error" class="error text-danger text-end" th:errors="${newJobTitle}"></p>
+                                                                </form>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button class="btn btn-primary" onclick="addJobTitle()">Add</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Edit job title modal -->
+                                                <div class="modal fade" id="edit-job-title-modal">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="text-secondary">Edit Job Title</h3>
+                                                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form id="edit-job-title-form" method="post" th:action="@{/mng/miscellaneous/job-titles/update}" th:object="${updateJobTitle}" >
+                                                                    <div class="mb-3">
+                                                                        <label for="job-title" class="col-form-label">Job Title:</label>
+                                                                        <input type="hidden" th:field="*{id}" id="job-title-id">
+                                                                        <input type="text" class="form-control" id="job-title" th:field="*{name}">
+                                                                        <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                                        <p id="name-error" class="error text-danger text-end" th:errors="${updateJobTitle}"></p>
+                                                                </form>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-between">
+                                                                <div id="edit-job-title-audit">
+                                                                    <div class="row">
+                                                                        <div class="col audit-info">Created By:
+                                                                            <span id="audit-creator"></span>
+                                                                            <span id="audit-created-date"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col audit-info">Last Updated By:
+                                                                            <span id="audit-updater"></span>
+                                                                            <span id="audit-last-updated"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button class="btn btn-primary" onclick="updateJobTitle()">Update</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Delete job title modal -->
+                                                <div class="modal fade" id="delete-job-title-modal">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="text-danger">Confirm Delete</h3>
+                                                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p class="fs-5">Are you sure to deleted the selected job title?</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteJobTitle()">Delete</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 col-sm-12 col-sm-12 m-2">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col fw-bold">Job Levels</div>
+                                                <button class="col-3 btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add-job-level-modal">Add</button>
+                                            </div>
+                                            <div class="row miscellaneous-table">
+                                                <table class="table">
+                                                    <thead class="position-sticky top-0 bg-light">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Name</th>
+                                                            <th class="text-end pe-4">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="jobLevel, iter : ${jobLevels}">
+                                                            <td th:text="${iter.count}"></td>
+                                                            <td th:text="${jobLevel.name}"></td>
+                                                            <td class="text-end pe-4">
+                                                                <i th:data-index="${iter.index}" class="fa-solid fa-pen-to-square jl-edit-btn"></i>
+                                                                <i th:data-id="${jobLevel.id}" class="fa-solid fa-trash ms-3 jl-delete-btn" data-bs-toggle="modal" data-bs-target="#delete-job-level-modal"></i>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <form id="delete-job-level-form" th:action="@{/mng/miscellaneous/job-levels/delete}" method="post">
+                                                    <input type="hidden" name="id" id="delete-job-level">
+                                                </form>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 col-sm-12 col-sm-12 m-2">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col fw-bold">Job Types</div>
+                                                <button class="col-3 btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add-job-type-modal">Add</button>
+                                            </div>
+                                            <div class="row miscellaneous-table">
+                                                <table class="table">
+                                                    <thead class="position-sticky top-0 bg-light">
+                                                        <tr>
+                                                            <th scope="col">#</th>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col" class="text-end pe-4">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="jobType, iter : ${jobTypes}">
+                                                            <td th:text="${iter.count}"></td>
+                                                            <td th:text="${jobType.name}"></td>
+                                                            <td class="text-end pe-4">
+                                                                <i th:data-index="${iter.index}" class="fa-solid fa-pen-to-square jtype-edit-btn"></i>
+                                                                <i th:data-id="${jobType.id}" class="fa-solid fa-trash ms-3 jtype-delete-btn" data-bs-toggle="modal" data-bs-target="#delete-job-type-modal"></i>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <form id="delete-job-type-form" th:action="@{/mng/miscellaneous/job-types/delete}" method="post">
+                                                    <input type="hidden" name="id" id="delete-job-type">
+                                                </form>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 col-sm-12 col-sm-12 m-2">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col fw-bold">Interview Stages</div>
+                                                <button class="col-3 btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add-interview-stage-modal">Add</button>
+                                            </div>
+                                            <div class="row miscellaneous-table">
+                                                <table class="table">
+                                                    <thead class="position-sticky top-0 bg-light">
+                                                        <tr>
+                                                            <th scope="col">#</th>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col" class="text-end pe-4">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="interviewStage, iter : ${interviewStages}">
+                                                            <td th:text="${iter.count}"></td>
+                                                            <td th:text="${interviewStage.name}"></td>
+                                                            <td class="text-end pe-4">
+                                                                <i th:data-index="${iter.index}" class="fa-solid fa-pen-to-square is-edit-btn"></i>
+                                                                <i th:data-id="${interviewStage.id}" class="fa-solid fa-trash ms-3 is-delete-btn" data-bs-toggle="modal" data-bs-target="#delete-interview-stage-modal"></i>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <form id="delete-interview-stage-form" th:action="@{/mng/miscellaneous/interview-stages/delete}" method="post">
+                                                    <input type="hidden" name="id" id="delete-interview-stage">
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Add job type modal -->
+                            <div class="modal fade" id="add-job-type-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Add Job Type</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="add-job-type-form" method="post" th:action="@{/mng/miscellaneous/job-types/add}" th:object="${newJobType}" >
+                                                <div class="mb-3">
+                                                    <label for="job-type" class="col-form-label">Job type:</label>
+                                                    <input type="text" class="form-control" id="job-type" th:field="*{name}">
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="${newJobType}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-primary" onclick="addJobType()">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit job type modal -->
+                            <div class="modal fade" id="edit-job-type-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-secondary">Edit Job type</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="edit-job-type-form" method="post" th:action="@{/mng/miscellaneous/job-types/update}" th:object="${updateJobType}" >
+                                                <div class="mb-3">
+                                                    <label for="job-type" class="col-form-label">Job type:</label>
+                                                    <input type="hidden" th:field="*{id}" id="job-type-id">
+                                                    <input type="text" class="form-control" id="job-type" th:field="*{name}">
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="*{name}"></p>                                                    </div>
+                                                    <p id="name-error" class="error text-danger text-end" th:errors="${updateJobType}"></p>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div id="edit-job-type-audit">
+                                                <div class="row">
+                                                    <div class="col audit-info">Created By:
+                                                        <span id="audit-creator"></span>
+                                                        <span id="audit-created-date"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col audit-info">Last Updated By:
+                                                        <span id="audit-updater"></span>
+                                                        <span id="audit-last-updated"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button class="btn btn-primary" onclick="updateJobType()">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Delete job type modal -->
+                            <div class="modal fade" id="delete-job-type-modal">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="text-danger">Confirm Delete</h3>
+                                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="fs-5">Are you sure to delete the selected job type?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteJobType()">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="jobDetail_Interview :: alertBox"></div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script th:src="@{/js/miscellaneous.js}"></script>
+        <!--AlertBox-->
+        <script th:src="@{/js/alertBox.js}"></script>
+        
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+        <script th:inline="javascript">
+            // Alert boxes START
+            const jobTitleAddSuccess =/*[[${jobTitleAddSuccess}]]*/ null;
+            const jobTitleUpdateSuccess =/*[[${jobTitleUpdateSuccess}]]*/ null;
+            const jobTitleDeleteSuccess =/*[[${jobTitleDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (jobTitleAddSuccess != null) {
+                togglePopupSuccess("Success", jobTitleAddSuccess);
+            }
+            if (jobTitleUpdateSuccess != null) {
+                togglePopupSuccess("Success", jobTitleUpdateSuccess);
+            }
+            if (jobTitleDeleteSuccess != null) {
+                togglePopupSuccess("Success", jobTitleDeleteSuccess);
+            }
+
+            const jobLevelAddSuccess =/*[[${jobLevelAddSuccess}]]*/ null;
+            const jobLevelUpdateSuccess =/*[[${jobLevelUpdateSuccess}]]*/ null;
+            const jobLevelDeleteSuccess =/*[[${jobLevelDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (jobLevelAddSuccess != null) {
+                togglePopupSuccess("Success", jobLevelAddSuccess);
+            }
+            if (jobLevelUpdateSuccess != null) {
+                togglePopupSuccess("Success", jobLevelUpdateSuccess);
+            }
+            if (jobLevelDeleteSuccess != null) {
+                togglePopupSuccess("Success", jobLevelDeleteSuccess);
+            }
+
+            const jobTypeAddSuccess =/*[[${jobTypeAddSuccess}]]*/ null;
+            const jobTypeUpdateSuccess =/*[[${jobTypeUpdateSuccess}]]*/ null;
+            const jobTypeDeleteSuccess =/*[[${jobTypeDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (jobTypeAddSuccess != null) {
+                togglePopupSuccess("Success", jobTypeAddSuccess);
+            }
+            if (jobTypeUpdateSuccess != null) {
+                togglePopupSuccess("Success", jobTypeUpdateSuccess);
+            }
+            if (jobTypeDeleteSuccess != null) {
+                togglePopupSuccess("Success", jobTypeDeleteSuccess);
+            }
+
+            const interviewStageAddSuccess =/*[[${interviewStageAddSuccess}]]*/ null;
+            const interviewStageUpdateSuccess =/*[[${interviewStageUpdateSuccess}]]*/ null;
+            const interviewStageDeleteSuccess =/*[[${interviewStageDeleteSuccess}]]*/ null;
+
+            //show alert box when mail exception have
+            if (interviewStageAddSuccess != null) {
+                togglePopupSuccess("Success", interviewStageAddSuccess);
+            }
+            if (interviewStageUpdateSuccess != null) {
+                togglePopupSuccess("Success", interviewStageUpdateSuccess);
+            }
+            if (interviewStageDeleteSuccess != null) {
+                togglePopupSuccess("Success", interviewStageDeleteSuccess);
+            }
+
+            // Alert boxes END
+            
+            /*<![CDATA[*/
+                // Job title edit button listener
+                document.querySelectorAll(".jt-edit-btn").forEach(el => {
+                    el.onclick = (e) => {
+                        const jobTitles = /*[[${jobTitles}]]*/ 'default';
+                        const jobTitle = jobTitles[e.target.dataset.index]
+
+                        // Get auditing info
+                        const createdDate = new Date(jobTitle.createdDate);
+                        const creatorName = jobTitle.createdBy.name;
+                        const lastUpdated = new Date(jobTitle.lastUpdated);
+                        const updaterName = jobTitle.lastUpdatedBy.name;
+                        
+                        clearErrors();
+                        // Fill the input fields
+                        $('#edit-job-title-modal').modal('show');
+                        $('#edit-job-title-modal').find('#job-title-id').val(jobTitle.id);
+                        $('#edit-job-title-modal').find('#job-title').val(jobTitle.name);
+
+                        // Fill the auditing info
+                        $('#edit-job-title-audit').find('#audit-creator').text(creatorName);
+                        $('#edit-job-title-audit').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                        $('#edit-job-title-audit').find('#audit-updater').text(updaterName);
+                        $('#edit-job-title-audit').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                    }
+                })
+
+                // Job level edit button listener
+                document.querySelectorAll(".jl-edit-btn").forEach(el => {
+                    el.onclick = (e) => {
+                        const jobLevels = /*[[${jobLevels}]]*/ 'default';
+                        const jobLevel = jobLevels[e.target.dataset.index]
+                        
+                        // Get auditing info
+                        const createdDate = new Date(jobLevel.createdDate);
+                        const creatorName = jobLevel.createdBy.name;
+                        const lastUpdated = new Date(jobLevel.lastUpdated);
+                        const updaterName = jobLevel.lastUpdatedBy.name;
+                        
+                        clearErrors();
+                        // Fill the input fields
+                        $('#edit-job-level-modal').modal('show');
+                        $('#edit-job-level-modal').find('#job-level-id').val(jobLevel.id);
+                        $('#edit-job-level-modal').find('#job-level').val(jobLevel.name);
+
+                        // Fill the auditing info
+                        $('#edit-job-level-audit').find('#audit-creator').text(creatorName);
+                        $('#edit-job-level-audit').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                        $('#edit-job-level-audit').find('#audit-updater').text(updaterName);
+                        $('#edit-job-level-audit').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                    }
+                })
+
+                // Job type edit button listener
+                document.querySelectorAll(".jtype-edit-btn").forEach(el => {
+                    el.onclick = (e) => {
+                        const jobTypes = /*[[${jobTypes}]]*/ 'default';
+                        const jobType = jobTypes[e.target.dataset.index]
+                        
+                        // Get auditing info
+                        const createdDate = new Date(jobType.createdDate);
+                        const creatorName = jobType.createdBy.name;
+                        const lastUpdated = new Date(jobType.lastUpdated);
+                        const updaterName = jobType.lastUpdatedBy.name;
+                        
+                        clearErrors();
+                        // Fill the input fields
+                        $('#edit-job-type-modal').modal('show');
+                        $('#edit-job-type-modal').find('#job-type-id').val(jobType.id);
+                        $('#edit-job-type-modal').find('#job-type').val(jobType.name);
+
+                        // Fill the auditing info
+                        $('#edit-job-type-audit').find('#audit-creator').text(creatorName);
+                        $('#edit-job-type-audit').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                        $('#edit-job-type-audit').find('#audit-updater').text(updaterName);
+                        $('#edit-job-type-audit').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                    }
+                })
+
+                // Interview stage edit button listener
+                document.querySelectorAll(".is-edit-btn").forEach(el => {
+                    el.onclick = (e) => {
+                        const interviewStages = /*[[${interviewStages}]]*/ 'default';
+                        const interviewStage = interviewStages[e.target.dataset.index]
+                        
+                        // Get auditing info
+                        const createdDate = new Date(interviewStage.createdDate);
+                        const creatorName = interviewStage.createdBy.name;
+                        const lastUpdated = new Date(interviewStage.lastUpdated);
+                        const updaterName = interviewStage.lastUpdatedBy.name;
+                        
+                        clearErrors();
+                        // Fill the input fields
+                        $('#edit-interview-stage-modal').modal('show');
+                        $('#edit-interview-stage-modal').find('#interview-stage-id').val(interviewStage.id);
+                        $('#edit-interview-stage-modal').find('#interview-stage').val(interviewStage.name);
+
+                        // Fill the auditing info
+                        $('#edit-interview-stage-audit').find('#audit-creator').text(creatorName);
+                        $('#edit-interview-stage-audit').find('#audit-created-date').text("[" + createdDate.toLocaleString() + "]")
+                        $('#edit-interview-stage-audit').find('#audit-updater').text(updaterName);
+                        $('#edit-interview-stage-audit').find('#audit-last-updated').text("[" + lastUpdated.toLocaleString() + "]")
+                    }
+                })
+                
+            /*]]>*/
+            
+            
+        </script>
+        <script th:src="@{/js/main.js}"></script>
+        <!-- SockJS, STOMP, and Notification JS  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script th:src="@{/js/websocket-listener.js}"></script>
+        <script th:src="@{/js/notification.js}"></script>
+
+    </body>
+</html>
+
